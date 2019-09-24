@@ -1,0 +1,2630 @@
+#+OPTIONS: tex:t
+#+STARTUP: latexpreview
+#+STARTUP: inlineimages
+#+STARTUP: showeverything
+
+#+TITLE: Udacity AI for Trading Part 2 Notes
+#+AUTHOR: Sturm Mabie
+
+* Lesson 3: Text Processing
+** 1: Text Processing 
+
+   1. Cleaning
+   2. Normalization
+   3. Tokenization
+   4. Stop word removal
+   5. Identity parts of speech 
+      
+** 3: Capturing Text Data
+
+   The processing stage starts with reading text data. Text data might
+   be parse of a database or table. Sometimes we have to query a web
+   source.
+
+** 4: Normalization 
+
+   Once we get the text data, we then normalize it.
+
+   Normalization process:
+   1. Remove capitalization
+   2. Punctuation removal or remove all non-alphanumeric characters
+      
+** 5: Tokenization
+
+   A token is a base symbol. For NLP, a token is usually a word. We
+   split the text on whitespace, so we can get a list of words.
+
+   Sometimes we want to tokenize into sentences, instead of words.
+
+   NLTK supports many different types of tokenizers.
+
+** 6: Cleaning
+
+   BeautifulSoup: Python library that can extract text from HTML
+   pages.
+
+** 7: Stop Word Removal 
+
+   Stop words are words that do not contain much information. They are
+   often the most common words in a document.
+
+   NLTK has many stop words for different languages.
+
+** 8: Part-of-Speech Tagging
+
+   NLTK pos_tag function can label parts of speech for each word.
+
+** 9: Named Entity Recognition
+
+   Named entities refer to specific person, place, or object.
+
+   NLTK ne_chunk generates trees of named entities.
+
+** 10: Stemming and lemmatization
+
+   Stemming: reduce words to root token.
+
+   NLTK includes different stemmers.
+
+   While stemming is crude and simple, lemmatization is a more complex
+   process to determine root words. 
+
+** 13: Summary
+
+   Typical NLP workflow:
+   1. Normalize
+   2. Tokenize
+   3. Remove stop words
+   4. Stemming/Lemmatize
+      
+* Lesson 4: Feature Extraction
+** 1: Feature Extraction
+
+   We will learn techniques for extracting relavent features from text
+   data after the cleaning process.
+
+** 2: Bag of Words
+
+   The bag of words treates each document as an unordered group of
+   words.
+
+   #+caption: Document-Term Matrix
+    [[file:img/dtmatrix.png]]
+
+
+   Each element in a document-term matrix represents the term
+   frequencies.
+
+   We can use the dot product to determine how similar two documents
+   are. The greater the dot product, the more similar the documents
+   are.
+
+   $$ a \cdot b = \sum_{i} a_i b_i $$
+
+   The problem with the dot product is that it only captures how much
+   each document overlaps.
+
+   A better measure is the cosine similarity:
+
+   $$ \cos \theta = \frac{a \cdot b}{\lVert a \rVert \cdot \lVert b \rVert} $$
+
+   $$ -1 < \cos \theta < 1 $$
+
+** 3: TF-IDF
+
+   One limitation of the bag of words approach is that it treates all
+   words equally.
+
+   #+caption: Document Frequency Normalization
+   [[file:img/idf.png]] 
+
+   This gives a metric that weights words higher the more unique they
+   are to a document.
+
+   TFIDF log weight words so many words don't overwhelm low count words.
+
+   \begin{align*}
+   \text{tf-idf}(t, d, D) =& \text{tf}(t, d) \cdot \text{idf}(t, D) \\
+   \text{tf}(t, d) =& \frac{\text{count}(t,d)}{|d|} \\
+   \text{idf}(t, D) =& \log \left( \frac{|D|}{\text{number of documents } t \text{ appears in}} \right)
+   \end{align*}
+
+
+   Where $t$ is the term frequency, $d$ is the document, and $D$ is
+   the set of all documents in the corpus.
+
+** 4: One-Hot Encoding
+
+   If we want to understand what a document says, instead of it's
+   relationship to other documents, we need to do a deeper analysis.
+
+   #+caption: One Hot Encoding
+   [[file:img/onehot.png]]
+
+** 5: Word-Embeddings
+
+   #+caption: Word Embedding
+   [[file:img/embed.png]]
+
+** 6: Word2Vec
+
+   word2vec transforms words to vector. 
+
+   Two methods of word2vec:
+   1. Continuous bag of words (CBoW)
+   2. Skip gram
+
+   #+caption: word2vec
+   [[file:img/word2vec.png]]
+
+   #+caption: Skip Gram Model
+   [[file:img/skipgram.png]]
+
+   word2vec properties:
+   1. Robust, distributed representation
+   2. Vector size independent of vocabulary
+   3. Train once, store in lookup table
+   4. Deep learning ready
+
+** 7: Glove
+
+   word2vec is one type of word embedding. Another model is called
+   GLoVe: Global Vectors for Word Representation.
+
+   #+caption: Glove
+   [[file:img/glove.png]]
+
+   #+caption: Co-occurrence Probabilities
+   [[file:img/cooccur.png]]
+
+** 8: Embeddings for Deep Learning
+
+   Word embeddings are becoming the de-facto representation for words
+   for deep learning.
+
+   Distributional Hypothesis: words that occur together are often
+   related to each other.
+
+   #+caption: NLP Pipelines
+   [[file:img/nn.png]]
+
+** 9: t-SNE
+
+   t-Distributed Stochastic Neighbor Embedding: Maps higher level
+   vector spaces onto a lower dimensional space. Preserves the
+   relationships while reducing the dimensionality
+   
+* Lesson 5: Financial Statements
+** 2: Financial Statements
+
+   Financial statements contain a lot of information that the price of
+   a security doesn't represent. SEC mandates that public companies be
+   truthful in these statements.
+
+   Two types of reports:
+   1. 10K-K: filled annually
+   2. 10-Q: filled quarterly
+
+   Four sections in a financial report:
+   1. Business overview
+   2. Markets/Finance
+   3. Governance
+   4. Full financial
+
+   EDGAR (Electronic Data Gathering Analysis Retrieval): Gives you
+   straightforward access to all publically filed reports.
+
+** 3: 10-K Walkthrough
+
+   Each company in the EDGAR database has an unique CIK number.
+
+** 5: Introduction to Regexes
+
+   Regular Expression allows us to search for patterns of text in a
+   regular manner.
+
+** 16: Introduction to BeautifulSoup
+
+   Python's BeautfiulSoup library allows you to extract text from HTML
+   and XML documents.
+
+   BeautifulSoup problems:
+   1. BeautifulSoup works best when have perfectly formatted HTML/XML.
+   2. Not all 10-Ks are in HTML/XML.
+
+* Lesson 6: Basic NLP Analysis
+** 1: Introduction
+
+   Basic NLP criteria:
+   1. Readability
+   2. Sentiments
+   3. Similarity
+
+** 2: Readability
+
+   Readability index: how complex a document is.
+
+   Reandability criteria:
+   1. Long sentences
+   2. Long words
+
+   Fresch-Kincaid Grade Index:
+
+   $$ \text{FKGI} = 0.39 \left( \frac{N_{word}}{N_{sentences}} \right) + 11.8 \left( \frac{N_{syllables}}{N_{words}} \right) - 15.59 $$
+
+   
+   Gunning-Fog Grade Index:
+
+   $$ \text{GFGI} = 0.4 \left[ \frac{N_{words}}{N_{sentences}} + 100 \left( \frac{N_{hard\,words}}{N_{words}} \right) \right] $$
+   
+
+   Hard words are words with more than 3 syllables.
+
+** 4: Bag-of-Words
+
+   Bag-of-words is useful despite its simplicity. Ignores word order.
+
+** 5: Sentiments from Word Lists
+
+   We can sort words into two piles:
+   1. Negative words
+   2. Positive words
+
+   We can find databases of word lists online.
+
+** 6: Frequency Re-weighting (TF-IDF)
+
+   With bag-of-words, the term weight on words is simply the number of
+   words. 
+
+   Term Frequency:
+   $$ \text{tf}(w, d) = \frac{1 + \log f_{w,d}}{1 + \log a_d} $$
+
+   $$ a_d = \text{average word frequency} $$
+
+   
+   Inverse-Document Frequency:
+   $$ \text{idf}(w) = 1 + \log \frac{N_D}{df_w} $$
+
+   $$ \text{tf-idf} = \text{tf}(w,d) \cdot \text{tdf}(w) $$
+
+   We can use many different combination of TF-IDF:
+   
+   $$
+   \text{tf-idf} = \log \frac{N_d}{\text{df}_w} \cdot 
+   \begin{cases}
+        \frac{1 + \log f_{w,d}}{1 + \log a_d} & f_{w,d} > 0 \\
+        0 & f_{w,d} = 0
+   \end{cases} $$
+
+   $$ \text{tf-idf} = \frac{N_d}{\text{df}_w} \cdot \frac{f_{w,d}}{a_d} $$
+
+   $$ \text{tf-idf} = \left(1 + \log \frac{N_d}{\text{df}_w} \right) \cdot \frac{\log(1 + f_{w,d})}{log(1 + a_d)} $$
+** 7: Similarity Metrics
+
+   We might just want to compare documents with each other, vs looking
+   for meaning inside of one document.
+
+   We can use cosine similarity to find the $\cos \theta$ between the
+   two vectors generated by IF-IDF.
+
+   Jaccard Similarity:
+   $$ JS = \frac{\sum_{i} \min(u_i, v_i) }{\sum_{i} \max(u_i, v_i)} = \frac{|u \cap v|}{|u \cup v|}$$
+   
+* Project 5: NLP on Financial Statements
+
+  [[file:udacity-part2/project_5_starter.html][NLP on Financial Statements]]
+  
+* Lesson 8: Introduction to Neural Networks
+** 2: Introduction
+
+   What is deep learning and why is it useful? neural networks are at
+   the heart of deep learning.
+
+** 3: Classification Problem 1
+
+   We are the admissions officer in a university and we want to accept
+   or reject students. We have two pieces of information:
+   1. Test score
+   2. Grades
+
+   Student 1 - Accepted
+   Test: 9/10
+   Grades: 8/10
+
+   Student 2 - Rejected
+   Test: 3/10
+   Grades: 4/10
+
+   Student 3 - Unknown 
+   Test: 7/10
+   Grades: 6/10
+
+   #+caption: Student 3
+   [[file:img/test.png]]
+
+** 4: Classification Problem 2
+
+   How do we find the classification line in the previous lesson?
+
+** 5: Linear Boundaries
+
+   #+caption: Boundary Line
+   [[file:img/line.png]]
+
+   $$ 2x_1 + x_2 - 18 = 0 $$
+
+   The above equation means that:
+
+   $$ score = 2 \cdot test + grades - 18 $$
+
+   $$ score > 0 = \text{ Accept} $$
+   $$ score < 0 = \text{ Reject} $$
+   
+   The general form of the linear equation will be:
+
+   $$ w_1 x_1 + w_2 x_2 + b = 0 $$
+
+   In vector notation:
+
+   $$ \text{W} x + b = 0 $$
+
+   $$ \text{W} = (w_1,\,w_2) $$
+   $$ x = (x_1,\,x_2) $$
+
+   $$ y = \text{label} = 0 \text{ or } 1 $$
+
+   Prediction:
+   $$ \hat{y} = 
+   \begin{cases}
+        1 \text{ if } \text{W}x + x > 0 \\
+        0 \text{ if } \text{W}x + x < 0
+   \end{cases}$$
+
+** 6: Higher Dimensions
+
+   What if we have more than two dimensions? For three dimensions we
+   have a boundary plane instead of a line.
+
+   #+caption: Boundary Plane
+   [[file:img/plane.png]]
+
+   
+   For n-dimensional space:
+   
+   $$ x_1,x_2,...x_n $$
+   
+   Boundary:
+
+   $n - 1$ dimensional hyperplane:
+   $$ w_1 x_1 + w_2 x_2 ... + w_n x_n + b = 0 $$
+
+   $$ \text{W}x + x = 0 $$
+
+   $$ \hat{y} = 
+   \begin{cases}
+        1 \text{ if } \text{W}x + x > 0 \\
+        0 \text{ if } \text{W}x + x < 0
+   \end{cases}$$
+
+** 7: Perceptrons
+
+   #+caption: Perceptron
+   [[file:img/bias.png]]
+
+   #+caption: Perceptron
+   [[file:img/perc.png]]
+
+   Two ways to represent preceptrons: One the bias is an input, in the
+   other the node itself contains the bias.
+
+   #+caption: Two ways to build an perceptron
+   [[file:img/twop.png]]
+
+** 8: Why "Neural Networks"?
+
+   NN are called that because pereptrons act and look like dendrites, nucleous, and axions.
+
+** 9: Perceptrons as Logical Operators
+
+   #+caption: AND perceptron
+   [[file:img/and.png]]
+
+   
+   #+caption: OR Perceptron
+   [[file:img/or.png]]
+
+   #+caption: XOR Perceptron
+   [[file:img/xorg.png]]
+
+** 10: Perceptron Trick
+
+   We first draw a random line and count the number of points that are
+   correctly classified and the number of incorrectly classified
+   points.
+
+   If we had a a single point, would we want the line to come closer
+   to the point so it can eventually classify it correctly.
+
+   We start with a line, and add or subtract a chosen point from the
+   equation. We use the learning rate to modify the point so we don't
+   move the line too much.
+   
+   #+caption: Old Line
+   [[file:img/oldline.png]]
+
+   
+   #+caption: New Line
+   [[file:img/newline.png]]
+
+   Subtract if in the positive area, add if you are in the negative
+   area.
+
+** 11: Perceptron Algorithm
+
+   1. Start with random weights $w_1,w_2,..w_n$
+   2. For $k$ time steps:
+      1. For every misclassified point:
+         + If $prediction = 0$
+            + For $i = 1...n$
+                + Change $w_i + \alpha x_i$
+                + Change $b$ to $b + \alpha$
+         + If $prediction = 1$
+            + For $i = 1...n$
+                + Change $w_i - \alpha x_i$
+                + Change $b$ to $b - \alpha$
+
+** 12: Non-Linear Regions
+
+   What if we can't separate it with a line?
+
+** 13: Error Functions
+
+   An error function will just tell us how far away we are from the
+   correct solution. The error is simply the distance from a point.
+
+** 14: Log-loss Error Function
+   
+   We can use gradient descent, but it will only give us the local
+   minima, not the global minima.
+
+   We could count the number of errors, but because our step function
+   is small, the number of errors won't decrease for each step. 
+
+   This means that we need a continuous vs a discrete gradient descent
+   function.
+
+   We can use a penalty based on how close the points are to the line.
+
+   #+caption: Error 1
+   [[file:img/error1.png]]
+
+   #+caption: Error 2
+   [[file:img/error2.png]]
+
+   Two properties of a gradiant descent:
+   1. The error function should be differentiable.
+   2. The error function should be continuous.
+
+** 15: Discrete vs Continuous
+
+   #+caption: Discrete vs Continuous Predictions
+   [[file:img/cont.png]]
+
+   #+caption: Activation Functions
+   [[file:img/sigma.png]]
+
+   Discrete:
+   $$ y = \begin{cases}
+   1 \text{ if } x > 0 \\
+   0 \text{ if } x < 0 
+   \end{cases}
+   $$
+
+   Continuous:
+   $$ \sigma(x) = \frac{1}{2 + e^{-x}}$$
+
+   #+caption: Predictions
+   [[file:img/prob.png]]
+
+   #+caption: Predictions
+   [[file:img/pred.png]]
+
+   
+   So we can classify each point by passing the equation of the line
+   that goes through the point to the sigmoid function.
+
+   #+caption: Binary Perceptron vs Sigmoid Perceptron
+   [[file:img/per.png]]
+   
+   The sigmoid function is defined as $\sigma(x) = 1/(1+e^{-x})$. If
+   the score is defined by $4x_1 + 5x_2 - 9 = score$, then which of
+   the following points has exactly a 50% probability of being blue or
+   red?
+   
+   Answers:
+   1. (1,1)
+   2. (-4,5)
+
+** 16: Softmax
+
+   So far we either have a binary output (yes or no classification),
+   or a probability. What if we want a different output?
+
+   What we have so far:
+   #+caption: Classification Problem
+   [[file:img/class.png]]
+
+   What if we have more options? Options are:
+
+   #+caption: Classification Problem
+   [[file:img/beev.png]]
+   
+** 17: One-Hot Encoding
+
+   #+caption: One-Hot Encoding
+   [[file:img/one.png]]
+
+** 18: Maximum Likelihood
+
+   Maximum Likelihood: We choose the model that gives the best
+   outcome.
+
+   #+caption: Which model is better?
+   [[file:img/better.png]]
+
+   #+caption: Left Model
+   [[file:img/pr.png]]
+
+   #+caption: Which is more likely?
+   [[file:img/bet.png]]
+
+   With maximum likelihood, we chose the model on the right because it
+   is much more likely.
+
+** 19: Maximizing Probabilities
+
+   A better model will give us a better probability. Now the question
+   becomes: how do we maximize the probabilities?. 
+
+   Because probabilities can be changed very drastically by one
+   number, we want to use sums. We can use the $\log$ function because
+   $\log ab = \log a + \log b$.
+
+** 20: Cross-Entropy 1
+
+   $$ \text{Cross Entropy} = - \sum_{i} \log x_i$$
+
+   #+caption: Cross-Entropy
+   [[file:img/cross.png]]
+
+   A good model will give us a low cross entropy, a bad model will
+   give us a high cross-entropy.
+
+   The points that are correctly classified will have small
+   cross-entropy values.
+
+   The goal has changed from maximizing probabilities to minimizing
+   cross-entropy:
+
+   #+caption: Cross-Entropy
+   [[file:img/min.png]]
+
+** 21: Cross-Entropy 2
+
+   Cross-Entropy: if I have a bunch of events and a bunch of
+   probabilities, how likely is it that the events happen according to
+   those probabilities. If it is likely, we have a small
+   cross-entropy, if it's unlikely, we have a large cross-entropy.
+
+   #+caption: Cross-Entropy
+   [[file:img/hodoor.png]]
+
+ 
+   $$ \text{Most Likely} = 0.9 \times 0.7 \times 0.9 = 0.504 $$
+
+   #+caption: Cross-Entropy
+   [[file:img/crossdoor.png]]
+
+   #+caption: Cross-Entropy Definition
+   [[file:img/ent.png]]
+
+   
+   $$\text{Cross-Entropy} = \text{CE}(\textbf{Y}, \textbf{P})  = - \sum_{i = 1}^{m} \left[ y_i \ln p_t + (1 - y_i)\ln (1 - p_i) \right]$$
+
+** 22: Multi-Class Cross Entropy
+
+   #+caption: Multi-Class Cross-Entropy
+   [[file:img/entropy.png]]
+
+   
+   #+caption: Multi-Class Cross-Entropy
+   [[file:img/ment.png]]
+
+   $$\text{Multi-Class Cross-Entropy} = \text{CE}(\textbf{Y}, \textbf{P}) = \sum_{i=1}^{n} \sum_{j=1}^{m} y_{ij} \ln p_{ij} $$
+
+** 23: Logistic Regression
+
+   Now, we're finally ready for one of the most popular and useful
+   algorithms in Machine Learning, and the building block of all that
+   constitutes Deep Learning. The Logistic Regression Algorithm. And
+   it basically goes like this:
+   1. Take your data
+   2. Pick a random model
+   3. Calculate the error
+   4. Minimize the error, and obtain a better model
+   5. Enjoy!
+   
+   #+caption: Error Function
+   [[file:img/errorfn.png]]
+
+   $$ \text{Error Function} = -\frac{1}{m} \sum_{i=1}^{m} \left[ (1 - y_i)\ln (1 - \hat{y_i}) + y_i \ln \hat{y} \right] $$
+
+   $$ E(\textbf{W}, b) = -\frac{1}{m} \sum_{i=1}^{m} \left[(1 - y_i)\ln(1 - \sigma(\textbf{W}x_i+b)) + y_i \ln(\sigma(\textbf{W}x_i + b)) \right] $$
+
+   If we have a multi-class problem, we have:
+
+   $$ E(\textbf{W}, b) = -\frac{1}{m} \sum_{i=1}^{m} \sum_{j=1}^{n} \left[y_ij \ln(\sigma(\textbf{W}x_{ij}+b))\right] $$
+
+   Now that we have the error function, we want to minimize it.
+
+** 24: Gradient Descent
+
+   #+caption: Gradiant Descent
+   [[file:img/grad.png]]
+
+
+   We should take the $-\nabla E$ of the error function.
+
+   Initial equation:
+   $$ \hat{y} = \sigma(\textbf{W}x + b) = \sigma(w_1 x_1 + w_2 x_2 ... w_n x_n + b) $$
+
+   $$\nabla E = \left(\frac{\partial E}{\partial w_1},\frac{\partial E}{\partial w_2},\cdots \frac{\partial E}{\partial w_n}, \frac{\partial E}{\partial b} \right)$$
+
+   Learning Rate:
+   $$\alpha = 0.1$$
+
+   Revised weights:
+   $$ w_i' = w_i - \alpha \cdot \frac{\partial E}{\partial w_i}$$
+
+   Revised bias:
+   $$ b' = b - \alpha \cdot \frac{\partial E}{\partial b}$$
+
+   With a lot of math we get:
+
+   $$ \nabla E = -(y - \hat{y})(x_1,x_2,\cdots x_n, 1)$$
+
+** 25: Logistic Regression Algorithm
+
+   1. Start with random weights: $w_1,\cdots,w_n,b$
+   2. For every point $(x_1,\cdots,x_n)$:
+      + For $i=1\cdots n$:
+        + Update: $w_i' = w_i - \alpha (\hat{y} - y) x_i$
+        + Update: $b' = b - \alpha (\hat{y} - y)$
+   3. Repeat until error is small
+
+** 28: Perceptron vs Gradient Descent
+
+   #+caption: Perceptron vs Gradient Descent
+   [[file:img/vs.png]]
+
+   #+caption: Gradient Descent Algorithm
+   [[file:img/clas.png]]
+
+** 29: Continuous Perceptrons
+
+   #+caption: Contiunuous Preceptron
+   [[file:img/contp.png]]
+
+** 30: Non-Linear Data
+
+   Neural networks show their real potential on non-linear boundaries.
+
+** 31: Non-Linear models
+
+   How do we find this curve:
+   #+caption: Acceptance at a University
+   [[file:img/acc.png]]
+
+   Everything will be the same, except that the line will not be
+   linear.
+   
+** 32: Neural Network Architecture
+
+   We add lines to together to great a non-linear model. We add the
+   numbers from the two models together and apply the sigmoid
+   function.
+
+   #+caption: Neural Network
+   [[file:img/comb.png]]
+
+   We calculate the probability for each of the two lines and then add
+   them together and apply the sigmoid function.
+
+   We can also apply weights on each the models:
+
+   #+caption: Combined
+   [[file:img/combs.png]]
+
+   For example:
+   #+caption: Two Models
+   [[file:img/twom.png]]
+
+   #+caption: Cleaned Up
+   [[file:img/clean.png]]
+
+   The above is using the notation that the bias is drawn inside the
+   job. We can also make the bias another node:
+
+   #+caption: Two methods of notation
+   [[file:img/biasn.png]]
+
+   Neural networks can have many different layers:
+   #+caption: Hidden Layers
+   [[file:img/layers.png]]
+
+   
+   If we have more than one hidden layers, we have a deep neural network:
+   #+caption: Deep Neural Network
+   [[file:img/deep.png]]
+
+   What if our neural network needs more than one output layer? We can
+   share nodes and then just use some specific nodes for each output
+   classification.
+
+   #+caption: Multiple Classifications.
+   [[file:img/multi.png]]
+
+** 33: Feedforward
+   
+   #+caption: Feedforward
+   [[file:img/ff.png]]
+
+   #+caption: Multi-Layer Perceptron
+   [[file:img/multip.png]]
+
+** 34: Backpropagation
+
+   Now, we're ready to get our hands into training a neural
+   network. For this, we'll use the method known as
+   backpropagation. In a nutshell, backpropagation will consist of:
+
+   1. Doing a feedforward operation.
+   2. Comparing the output of the model with the desired output.
+   3. Calculating the error.
+   4. Running the feedforward operation backwards (backpropagation) to
+      spread the error to each of the weights.
+   5. Use this to update the weights, and get a better model.
+   6. Continue this until we have a model that is good.
+
+   We use cross entropy and try to update each perceptron.
+
+   #+caption: Backpropagation of Error
+   [[file:img/fur.png]]
+
+   The previous image gets updated to:
+   #+caption: caption of the image
+   [[file:img/change.png]]
+
+   #+caption: Perceptron Overview
+   [[file:img/recap.png]]
+
+   For a multi-layered perceptron, we do something similar:
+   #+caption: Multi-Layer Perceptron Overview
+   [[file:img/errorp.png]]
+
+   Chain Rule:
+   $$ A = f(x) $$
+   $$ B = g \cdot f(x) $$
+
+   $$ \frac{\partial B}{\partial x} = \frac{\partial B}{\partial A} \frac{\partial A}{\partial x} $$
+
+
+   #+caption: Feed Forward Overview
+   [[file:img/ff2.png]]
+
+   #+caption: Backpropagation
+   [[file:img/ffback.png]]
+
+   #+caption: Backpropagation Example
+   [[file:img/bback.png]]
+
+* Lesson 9: Training Neural Networks
+** 2: Training Optimization
+
+   Sometimes we need to optimize our models because the network in
+   inefficient.
+
+** 3: Testing
+
+   #+caption: Which model is better?
+   [[file:img/mod.png]]
+
+   The model on the left is better because it is simpler.
+
+   We can separate our model into two sets of data: training and
+   testing.
+
+** 4: Overfitting and Underfitting
+
+   Underfitting: trying to use a too simple model to solve a complex
+   problem.
+
+   Overfitting: trying to use a too complex model solve a simple
+   problem.
+
+   We can use training data to make sure our classifier isn't too
+   specific. We sometimes call underfitting "error due to variance."
+
+   #+caption: Three Bears
+   [[file:img/over.png]]
+
+   We want to err on the side of a complicated model, just to be safe.
+
+** 5: Early Stopping
+
+   We don't want to run our model over too many epochs because it will
+   tend to overfit.
+
+   #+caption: Training Error vs Testing Error
+   [[file:img/overr.png]]
+
+   This is called a model complexity graph:
+   #+caption: Model Complexity Graph
+   [[file:img/goldi.png]]
+
+   This is called early stopping.
+
+** 7: Regularization 2
+
+   #+caption: Which one gives a smaller error
+   [[file:img/quiz.png]]
+
+   #+caption: Activation Functions
+   [[file:img/act.png]]
+
+   The model on the left is better because it allows use to do
+   gradient descent more easily. The model on the right is too
+   certain.
+
+   #+caption: Regularization
+   [[file:img/pen.png]]
+
+   We can penalize large weights through L1 or L2 regularization.
+
+   #+caption: L1 vs L2
+   [[file:img/l1.png]]
+
+** 8: Dropout
+
+   We selectively turn off certain nodes some all of our nodes get
+   training. This ensures that the neural network doesn't become
+   unbalanced.
+
+   We set a $p$ value based on a preset probability. This the
+   probability for each node that the node will be turned off for that
+   training round.
+
+** 9: Local Minima
+
+   #+caption: Gradient Descent with Local Minima
+   [[file:img/grd.png]]
+
+   Gradient descent will not help us get to the global minimum here.
+
+** 10: Random Restart
+
+   Instead, we can start from many different points and hope we get to
+   a global minimum.
+
+** 11: Vanishing Gradient
+
+   #+caption: Sigmoid Function
+   [[file:img/sigmoid.png]]
+
+   The sigmoid function is almost flat on the sides. So if we were
+   calculating the derivative, it would almost be zero. This isn't
+   good because we are using the derivative to calculate the gradient
+   descent, and there will not be very much information on the edges.
+
+   #+caption: Backpropagation
+   [[file:img/der.png]]
+
+   If we are the edge of the sigmoid function, the partial derivatives
+   for any one point are going to get tiny very quickly.
+
+** 12: Other Activation Functions
+   
+   To solve the aforementioned problem, we instead can use the
+   hyberbolic tangent function:
+   $$ \tanh x = \frac{e^x-e^{-x}}{e^x+e^{-x}}$$
+
+   #+caption: Hyperbolic Tangent Function
+   [[file:img/tanh.png]]
+
+   We can also us the rectified linear unit:
+   $$\text{relu } x = \begin{cases}
+   x \text{ if } x \geq 0 \\
+   x \text{ if } x < 0 
+   \end{cases}
+   $$
+
+   #+caption: Rectified Linear Unit
+   [[file:img/rect.png]]
+
+   Using either of these functions instead of the sigmoid function
+   allows the derivatives to be larger on the edges on the
+   domain. This allows us to do gradient descent.
+
+   We still use the sigmoid function for the last output, so we can
+   put our confidence in terms of a probability.
+
+** 13: Batch vs Stochastic Gradient Descent
+
+   In one epoch, we run our data through the entire network and then
+   backpropagate our error throughout the network.
+
+   Stochastic gradient descent:
+   1. Split the data into several batches
+   2. Do feedforward and backpropagation for each batch
+   3. We take $n$ steps instead of one step
+
+   This is less computationally expensive and we take more steps in
+   less time.
+
+** 14: Learning Rate Decay
+
+   #+caption: Learning Rate
+   [[file:img/ll.png]]
+
+   The best learning rates decrease as you get closer to the solution.
+
+** 15: Momentum
+
+   Sometimes we want some momentum in the gradient descent
+   process. This allows us to power over local minimum instead of
+   getting stuck.
+
+   Momentum: $\beta$
+
+   $$\text{STEP}(n) \rightarrow \text{STEP}(n) + \beta\cdot\text{STEP}(n-1) + \beta^2\cdot\text{STEP}(n-2) + \cdots $$
+
+   #+caption: Momentum Gradient Descent
+   [[file:img/bb.png]]
+
+* Lesson 10: Deep Learning with PyTorch
+  [[file:/home/sturm/learn/quant/udacity-part2][PyTorch Exercises]]
+* Lesson 11: Recurrent Neural Networks
+** 1: Intro to RNNs
+   
+   RNN and LSTM references:
+   1. [[http://colah.github.io/posts/2015-08-Understanding-LSTMs/][Chris Olah's LSTM post]]
+   2. [[http://blog.echen.me/2017/05/30/exploring-lstms/][Edwin Chen's LSTM post]]
+   3. [[http://karpathy.github.io/2015/05/21/rnn-effectiveness/][Andrej Karpathy's blog post on RNNs]]
+   4. [[https://www.youtube.com/watch?v=iX5V1WpxxkY][Adrej Karpathy's lecture on RNNs and LSTMs]]
+
+** 2: RNN vs LSTM
+   
+   RNN: incorporate past information into the neural network. The
+   memory it stores is usually short-term memory:
+
+   #+caption: RNN
+   [[file:img/rnn.png]]
+
+   LSTM: captures both long-term memory and short-term memory:
+
+   #+caption: LSTM
+   [[file:img/lstm.png]]
+   
+** 3: Basics of LSTM
+
+   #+caption: LSTM
+   [[file:img/lstm2.png]]
+
+
+   #+caption: LSTM
+   [[file:img/lstm4.png]]
+
+** 4: Architecture of LSTM
+
+   #+caption: RNN
+   [[file:img/rnn2.png]]
+
+   #+caption: LSTM
+   [[file:img/lstm5.png]]
+
+** 5: The Learn Gate
+
+   #+caption: Learn Gate
+   [[file:img/learn.png]]
+
+   The output of the Learn Gate is $N_t i_t$ where:
+
+   $$ N_t = \tanh(W_n[STM_{t-1},E_t]+b_n)$$
+   $$i_t = \sigma(W_t[STM_{t-1},E_t]+b_t)$$
+
+** 6: The Forget Gate
+
+   Forget Gate: Forgets old information from $LTM_{t-1}$
+
+   #+caption: Forget Gate
+   [[file:img/forget.png]]
+
+   The output of the Forget Gate is $LTM_{t-1}f_t$ where:
+   
+   $$ f_t = \sigma(W_f[STM_{t-1},E_t]+b_f)$$
+
+** 7: The Remember Gate
+
+   #+caption: Remember Gate
+   [[file:img/remember.png]]
+
+   The output of the Remember Gate is:
+   
+   $$LTM_{t-1}f_t + N_t i_t$$
+
+** 8: The Use Gate
+
+   Use Gate: takes the short-term and long-term memory and generates new long-term memory
+
+   #+caption: Use Gate
+   [[file:img/use.png]]
+
+   The output of the Use Gate is $U_tV_t$ where:
+
+   $$U_t = \tanh(W_uLTM_{t-1}f_t+b_u)$$
+
+   $$V_t = \sigma(W_v[STM_{t-1},E_t]+b_v)$$
+
+** 9: Putting it All Together
+
+   #+caption: LSTM
+   [[file:img/learn2.png]]
+
+   $$STM_t = U_t \cdot V_t$$
+
+   Remember Gate:
+
+   $$LTM_t = LTM_{t-1}f_t + N_t i_t$$
+   
+   Use Gate:
+   $$U_t = \tanh(W_uLTM_{t-1}f_t+b_u)$$
+
+   $$V_t = \sigma(W_v[STM_{t-1},E_t]+b_v)$$
+
+   Forget Gate:
+   $$ f_t = \sigma(W_f[STM_{t-1},E_t]+b_f)$$
+
+   Learn Gate:
+   $$ N_t = \tanh(W_n[STM_{t-1},E_t]+b_n)$$
+
+   $$i_t = \sigma(W_t[STM_{t-1},E_t]+b_t)$$
+
+** 10: Other Architectures
+
+   #+caption: Gated Recurrent Unit
+   [[file:img/gru.png]]
+
+   Info about GRU: [[http://www.cs.toronto.edu/~guerzhoy/321/lec/W09/rnn_gated.pdf][Michael Guerzhoy's post about GRU]]
+
+   Peerhole Connections: Input the 1LTM into all of the connection
+   #+caption: Peephole Connections
+   [[file:img/peerhole.png]]
+
+   #+caption: LSTM with Peerhole Connections
+   [[file:img/lstmp.png]]
+      
+* Lesson 12: Embeddings & Word2Vec
+** 1: Word Embeddings
+
+   Word embedding: mappings a set of words to vectors
+   
+   Word2Vec Model: learns to map words to embeddings that contain
+   semantic meaning.
+
+   #+caption: Example Embeddings
+   [[file:img/embedding.png]]
+
+   If your text contains bias, there is some bias in the embeddings.
+   
+** 2: Embedding Weight Matrix/Lookup Table
+
+   It is very computationally inefficient to one-hot encode the input
+   text. Insead we can use embeddings.
+
+   #+caption: Embedding Lookup
+   [[file:img/layer.png]]
+
+** 3: Word2Vec Notebook
+
+   Word2Vec tries to find words with similar contexts and map them
+   onto vector space.
+
+   CBOW model: You give the model the words around the target word,
+   and it tries to predict the word.
+
+   Skip-Gram model: You give the model the target word and it tries to
+   predict the words around it. It is often more efficient than CBOW.
+
+** 4: Notebook: Word2Vec, SkipGram
+
+   1. Load in text data
+   2. Pre-process that data, encoding characters as integers
+   3. Define the context words surrounding a word of interest
+   4. Define an RNN that predicts the context words when given an input word
+   5. Train the RNN
+   6. Visualize the embeddings learned in the embedding layer!
+
+** 6: Data & Subsampling
+
+   1. Load the data
+   2. Preprocess the text by replacing symbols like periods, etc. Also
+      remove most common five words. Also remove duplicate words.
+   3. Sort words by their frequency.
+   4. Subsample by removing words based on frequency:
+
+      $$P(w_i)=1-\sqrt{\frac{t}{f(w_i)}}$$
+
+      $$f(w_i)=\frac{\text{\# of word occurences}}{\text{\# of total words}}$$
+
+      $$t = \text{threshold parameter}$$
+
+** 8: Context Word Targets
+
+   With a window size $C$, choose $R$ words where $R \leq C$ behind
+   and in front of the word.
+
+** 9: Batching Data
+
+   Input  x: [0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3]
+   Output y: [1, 2, 3, 0, 2, 3, 0, 1, 3, 1, 2]
+
+   The input x coresponds to the output context y. We extend the xs to
+   match the length of the y output window.
+
+** 10: Word2Vec Model
+
+   Input Vector -> Embedding Layers -> Softmax Output
+
+   We can get rid of the output layer after we've trained the
+   embedding layer.
+
+   We can use the cosine similarity to calculate the relatedness of
+   each word. Between 0 and 1 that determines how similar two vectors
+   are.
+
+   #+caption: Cosine Similarity
+   [[file:img/cosine.png]]
+
+** 11: Model & Validations
+
+   We can visualize how dimensional data based on T-SNE.
+
+** 12: Negative Sampling
+
+   Negative sampling: In the model, for every word we are only making
+   small changes to weights. Instead of having a full Softmax output
+   layer, we can just update a small number of weights at a time. 
+
+   *Look at negative sampling notebook*
+
+* Lesson 13: Sentiment Prediction RNN
+** 4: Data Pre-Processing
+
+   1. Strip punctuation and create list of reviews by splitting text on
+   newlines.
+   1. Convert words to integers. Map more frequent words to lower integers.
+   2. Encode labels (Positive => 0) or (Negative => 1).
+
+** 6: Getting Rid of Zero-Length
+   
+   1. Get rid of extremely long or short reviews; the outliers.
+   2. Padding/truncating the remaining data so that we have reviews of
+      all the same length.
+
+** 9: TensorDataset & Batching Data
+
+   1. Split data into three sets: training, validation, testing.
+   2. Wrap out data into a TensorDataset and pass it into the DataLoader.
+
+** 10: Defining the Model
+
+   Embedding Layer -> LSTM -> Sigmoid
+   
+** 11: Complete Sentiment RNN
+      
+   #+BEGIN_SRC python
+   def forward(self, x, hidden):
+        """
+        Perform a forward pass of our model on some input and hidden state.
+        """
+        batch_size = x.size(0)
+
+        # embeddings and lstm_out
+        embeds = self.embedding(x)
+        lstm_out, hidden = self.lstm(embeds, hidden)
+
+        # stack up lstm outputs
+        lstm_out = lstm_out.contiguous().view(-1, self.hidden_dim)
+
+        # dropout and fully-connected layer
+        out = self.dropout(lstm_out)
+        out = self.fc(out)
+
+        # sigmoid function
+        sig_out = self.sig(out)
+
+        # reshape to be batch_size first
+        sig_out = sig_out.view(batch_size, -1)
+        sig_out = sig_out[:, -1] # get last batch of labels
+
+        # return last sigmoid output and hidden state
+        return sig_out, hidden
+   #+END_SRC
+   1. forward explanation 
+      - So, first, I'm getting the batch_size of my input x, which
+        I'll use for shaping my data. Then, I'm passing x through the
+        embedding layer first, to get my embeddings as output
+
+      - These embeddings are passed to my lstm layer, alongside a
+        hidden state, and this returns an lstm_output and a new hidden
+        state! Then I'm going to stack up the outputs of my LSTM to pass
+        to my last linear layer.
+
+      - Then I keep going, passing the reshaped lstm_output to a
+        dropout layer and my linear layer, which should return a
+        specified number of outputs that I will pass to my sigmoid
+        activation function.
+
+      - Now, I want to make sure that I'm returning only the last of
+        these sigmoid outputs for a batch of input data, so, I’m going
+        to shape these outputs into a shape that is batch_size
+        first. Then I'm getting the last bacth by called `sig_out[:,
+        -1], and that’s going to give me the batch of last labels that
+        I want!
+
+      - Finally, I am returning that output and the hidden state
+        produced by the LSTM layer.
+   
+   #+BEGIN_SRC python
+    def init_hidden(self, batch_size):
+        ''' Initializes hidden state '''
+        # Create two new tensors with sizes n_layers x batch_size x hidden_dim,
+        # initialized to zero, for hidden state and cell state of LSTM
+        weight = next(self.parameters()).data
+
+        if (train_on_gpu):
+            hidden = (weight.new(self.n_layers, batch_size, self.hidden_dim).zero_().cuda(),
+                  weight.new(self.n_layers, batch_size, self.hidden_dim).zero_().cuda())
+        else:
+            hidden = (weight.new(self.n_layers, batch_size, self.hidden_dim).zero_(),
+                      weight.new(self.n_layers, batch_size, self.hidden_dim).zero_())
+
+        return hidden
+   #+END_SRC
+   1. init_hidden 
+       - That completes my forward function and then I have one more:
+         init_hidden and this is just the same as you’ve seen
+         before. The hidden and cell states of an LSTM are a tuple of
+         values and each of these is size (n_layers by batch_size, by
+         hidden_dim). I’m initializing these hidden weights to all
+         zeros, and moving to a gpu if available.
+
+       - After this, I'm ready to instantiate and train this model,
+         you should see if you can decide on good hyperparameters of
+         your own, and then check out the solution code, next!
+* Project 6: Sentiment Analysis with Neural Networks
+
+  [[file:udacity-part2/project_6_starter.html][Sentiment Analysis with Neural Networks]]
+
+* Lesson 15: Overview
+** 1: Welcome
+   Combine alpha signals in non-linear ways.
+
+** 3: Supervised Learning
+
+   In supervised learning our algorithms learn from labeled
+   data. Supervised learning can be divided into two categories:
+   1. Classification: predicts categorical outcomes (example: spam
+      filter)
+   2. Regression: predicts nemeric outcome (example: house price)
+
+** 4: Unsupervised and Reinforcement Learning
+
+   In unsupervised learning, we learn without using labels from the
+   data.
+
+   The final type of ML is called reinforcement learning. In
+   reinforcement learning, the models do things and receive rewards
+   based on how well they do.
+
+** 5: Summary
+
+    Supervised learning: learns from labeled data, maps inputs to
+    outputs based on example input-output pairs
+        - Regression: labels are values
+        - Classification: labels are classes
+
+    Unsupervised learning: seeks to cluster or organize unlabeled data
+
+    Reinforcement learning: agents take actions in an environment to
+    maximize reward
+
+* Lesson 16: Decision Trees
+** 2: Intro
+
+   A decision tree asks you many questions about the data. Then it
+   narrows down the answer based on the answers to the question.
+
+** 3: Recommendation Apps 1
+
+   #+caption: Recommendation Apps
+   [[file:img/rec.png]]
+
+   The goal of the model is given the first two columns, predict the
+   third column.
+
+** 5: Recommendation Apps 3
+
+   We try and split based on different dimensions. 
+
+** 6: Tree Anatomy
+
+   #+caption: Tree Anatomy
+   [[file:img/treea.png]]
+
+   Internal nodes are points along the tree where the predictor space
+   is split.
+
+   Terminal nodes or leaves are the nodes at the bottom of the tree,
+   which are not split (in the sense that the leaves are at the bottom
+   of the tree, decision trees are upside down).
+
+   Branches are the segments of the tree that connect the nodes.
+
+   The depth is the number of levels in the tree.
+   
+** 8: Solution: Student Admissions
+
+   #+caption: Decision Tree 
+   [[file:img/dec.png]]
+
+** 9: Entropy
+
+   #+caption: Entropy
+   [[file:img/entropy2.png]]
+
+   #+caption: Knowledge
+   [[file:img/entropy3.png]]
+
+   Knowledge is the opposite of entropy.
+
+** 11: Entropy Formula 2
+
+   #+caption: Game
+   [[file:img/game.png]]
+
+   #+caption: First Example
+   [[file:img/game2.png]]
+
+   #+caption: Second Example
+   [[file:img/game3.png]]
+
+   #+caption: Third Example
+   [[file:img/game4.png]]
+
+   #+caption: Table
+   [[file:img/game5.png]]
+
+** 12: Entropy Formula 3
+
+   Because products are bad and sums are good, we can use $\log$ to
+   turn the products into sums.
+
+   #+caption: Entropy
+   [[file:img/entropy4.png]]
+
+   #+caption: Entropy Formula
+   $$\text{Entropy} = -\frac{m}{m+n}\log \left(\frac{m}{m+n}\right) -\frac{n}{m+n}\log \left(\frac{n}{m+n}\right) $$
+
+** 14: Multiclass Entropy
+
+   $$\text{Entropy} = - \sum_{i=1}^{n}p_i \log_2(p_i)$$
+
+** 16: Solution: Information Gain
+
+   For $m$ objects on one class, and $n$ of the other:
+   $$\text{Information Gain} = \text{Entropy}(Parent) - \left[\frac{m}{m+n}\text{Entropy}(Child_1) + \frac{n}{m+n}\text{Entropy}(Child_2)\right]$$
+
+** 17: Maximizing Information Gain
+
+   #+caption: Gender
+   [[file:img/occ.png]]
+
+   #+caption: Occupation
+   [[file:img/gender.png]]
+
+   #+caption: Decision Tree
+   [[file:img/dectree.png]]
+
+** 19: Gini Impurity
+
+   If there are $k$ classes and ${\hat p_k}$ is the fraction of
+   observations from class $k$ classified by a node, we can calculate $G$ for the node:
+
+   $$G = \sum_{k=1}^{K}{\hat p_k}(1-{\hat p_k})$$
+
+   The Gini index takes on a small value if all of the proportions are
+   close to zero or one. You can think of it as a measure of node
+   purity —if the value is small, the node mostly contains
+   observations from a single class. It turns out that the Gini index
+   and entropy are quite similar numerically.
+
+   To measure the increase in purity of a split using the Gini index,
+   calculate the Gini index on the parent node and subtract the
+   weighted average of the Gini indexes of the child nodes:
+
+   $$G_{\text{increase}} = G_{\text{parent}} - \sum_{\text{children}}(\text{fraction of obervations})_{\text{child}} \times G_{\text{child}}$$
+
+
+   Scikit-learn supports both the Gini impurity and information gain
+   metrics for evaluating the quality of splits, via the criterion
+   hyperparameter.
+
+** 20: Hyperparameters
+
+   Most important hyper parameters for decision trees:
+   1. Maximum depth
+   2. Minimum number of samples to split
+   3. Minimum number of samples per leaf
+      
+** 21: Decision Trees in sklearn
+
+   #+caption: Decision Tree Quiz
+   [[file:img/quiz2.png]]
+
+
+   You'll need to complete each of the following steps:
+   1. Build a decision tree model
+        - Create a decision tree classification model using
+          scikit-learn's DecisionTree and assign it to the
+          variablemodel.
+   2. Fit the model to the data
+        - You won't need to specify any of the hyperparameters, since
+          the default ones will yield a model that perfectly
+          classifies the training data. However, we encourage you to
+          play with hyperparameters such as max_depth and
+          min_samples_leaf to try to find the simplest possible model.
+   3. Predict using the model
+        - Predict the labels for the training set, and assign this
+          list to the variable y_pred.
+   4. Calculate the accuracy of the model
+
+   For this, use the function sklearn function accuracy_score. A model's
+   accuracy is the fraction of all data points that it correctly
+   classified.  When you hit Test Run, you'll be able to see the boundary
+   region of your model, which will help you tune the correct parameters,
+   in case you need them.
+
+   Note: This quiz requires you to find an accuracy of 100% on the
+   training set. This is like memorizing the training data! A model
+   designed to have 100% accuracy on training data is unlikely to
+   generalize well to new data. If you pick very large values for your
+   parameters, the model will fit the training set very well, but may not
+   generalize well. Try to find the smallest possible parameters that do
+   the job—then the model will be more likely to generalize well. (This
+   aspect of the exercise won't be graded.)
+
+   #+BEGIN_SRC python
+   # Import statements 
+   from sklearn.tree import DecisionTreeClassifier
+   from sklearn.metrics import accuracy_score
+   import pandas as pd
+   import numpy as np
+    
+   # Read the data.
+   data = np.asarray(pd.read_csv('data.csv', header=None))
+   # Assign the features to the variable X, and the labels to the variable y. 
+   X = data[:,0:2]
+   y = data[:,2]
+    
+   # TODO: Create the decision tree model and assign it to the variable model.
+   model = DecisionTreeClassifier()
+    
+   # TODO: Fit the model.
+   model.fit(X,y)
+    
+   # TODO: Make predictions. Store them in the variable y_pred.
+   y_pred = model.predict(X)
+    
+   # TODO: Calculate the accuracy and assign it to the variable acc.
+   acc = accuracy_score(y, y_pred)
+   #+END_SRC
+
+** 22: Titantic Survival Exploration with Decision Trees
+
+   [[file:udacity-part2/Titanic Model.html]]
+
+** 24: Visualizing Your Tree
+
+   Visualizing a Decision 
+   Tree Once we have created a decision tree
+   using sklearn, we can easily visualize it by exporting the tree in
+   Graphviz format, using Graphviz open source graph visualization
+   software.
+
+   #+BEGIN_SRC python
+   export_graphviz 
+   #+END_SRC
+
+   Use sklearn.tree.export_graphviz() to export the tree into DOT
+   format. DOT is GraphViz's text file format. It includes
+   human-readable syntax that describes the appearance of the tree
+   graph, including the content of subtrees and the appearance of
+   nodes (i.e. color, width, label).
+
+   So for example, assume model is an instance of
+   DecisionTreeClassifier(), and you've already called
+   model.fit(). Then export to DOT format as follows:
+
+   #+BEGIN_SRC python
+   dot_data = export_graphviz(model)
+   #+END_SRC
+
+   There are a lot of options you can specify at this step, which you
+   can explore in the documentation here. In particular, you can save
+   the data to a file, you can specify whether and how to label the
+   nodes, and you can rotate the tree.
+
+   graphviz.Source
+   To render a ready-made DOT source code string, create a Source
+   object holding your DOT string.
+
+   #+BEGIN_SRC python
+   from graphviz import Source
+   graph = graphviz.Source(dot_data) 
+   #+END_SRC
+
+   Then, display the graph directly in the Jupyter notebook:
+
+   #+BEGIN_SRC python
+   graph
+   #+END_SRC
+* Lesson 17: Model Testing and Evaluation
+** 1: Intro
+
+   Topics in this lesson:
+   1. How well is my model doing?
+   2. How do we improve it based on these metrics?
+
+** 2: Outline
+
+   Problem -> Tools -> Measurement Tools
+
+   Measurement Tools: tools that tell you how well the algorithm is
+   working with the data.
+
+** 3: Testing your models
+
+   #+caption: Regression vs Classification
+   [[file:img/regvsc.png]]
+
+   We want a model that has good predictive power and doesn't over
+   fit. We want to minimize data on the testing set, not just on the
+   training set.
+
+   We can use sklearn to split data into training and testing.
+
+   It is very important to never use our testing data for training.
+
+   The code belows splits points based on their label:
+   #+BEGIN_SRC python
+   # Import statements 
+   from sklearn.tree import DecisionTreeClassifier
+   from sklearn.metrics import accupracy_score
+   import pandas as pd
+   import numpy as np
+
+   # Import the train test split
+   # http://scikit-learn.org/0.16/modules/generated/sklearn.cross_validation.train_test_split.html
+   from sklearn.cross_validation import train_test_split
+
+   # Read the data.
+   data = np.asarray(pd.read_csv('data.csv', header=None))
+   # Assign the features to the variable X, and the labels to the variable y. 
+   X = data[:,0:2]
+   y = data[:,2]
+
+   # Use train test split to split your data 
+   # Use a test size of 25% and a random state of 42
+   X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
+   # TODO: Create the decision tree model and assign it to the variable model.
+   model = DecisionTreeClassifier()
+
+   # TODO: Fit the model to the training data.
+   model.fit(X_train,y_train)
+
+   # TODO: Make predictions on the test data
+   y_pred = model.predict(X_test)
+
+   # TODO: Calculate the accuracy and assign it to the variable acc. on the test data
+   acc = accuracy_score(y_test, y_pred)
+   #+END_SRC
+
+** 4: Confusion Matrix
+
+   Example:
+   A model that determines whether a patient is healthy or sick
+
+   #+caption: Medical Model
+   [[file:img/sick.png]]
+
+   A confusion matrix is a table that describes the performance of the
+   model.
+
+   #+caption: Confusion Matrix
+   [[file:img/med.png]]
+
+** 6: Accuracy
+
+   #+caption: Accuracy
+   [[file:img/accc.png]]
+
+** 8: When accuracy won't work
+
+   Accuracy might not always be the best metric to use.
+   
+   Example: Credit card fraud. There are 284,335 good transactions and
+   472 fraudulent transactions.
+
+   We could come up with a very high accuracy by just labeling all
+   transactions and legitimate.
+
+** 10: Precision and Recall
+
+   Some models we don't want false positives, in some models we don't
+   want false negatives.
+
+   High recall: a model that needs to have few false negatives
+   High precision: a model that needs to have few false positives
+
+** 11: Precision
+
+   Precision: out of all the points that were labeled negative, what
+   percent were correct?
+
+   #+caption: Medical Example Precision
+   [[file:img/pre.png]]
+
+   #+caption: Spam Example Precision
+   [[file:img/pree.png]]
+
+** 12: Recall
+
+   Recall: out of all the points that were labeled positive, what
+   percent were correct?
+
+   #+caption: Modical Example Recall
+   [[file:img/prc.png]]
+
+   #+caption: Spam Example Recall
+   [[file:img/spam.png]]
+
+** 13: Types of Errors
+
+   Underfitting: does poorly on the training set: error due to bias
+   Overfitting: does well on the training set: error due to variance
+
+   #+caption: Trade Off
+   [[file:img/trade.png]]
+
+** 14: Model Complexity Graph
+
+   #+caption: Complexity Graph
+   [[file:img/complex.png]]
+
+   #+caption: Complexity Graph
+   [[file:img/comp.png]]
+
+   We choose the model in which the training and testing error both go
+   down. When the testing error starts go up but the training error is
+   going down, we are starting to overfit.
+
+** 15: Cross Validation
+
+   #+caption: Complexity Graph
+   [[file:img/crosss.pg]]
+
+   We broke the golden rule! We used our testing data to train our
+   model! How do we fix this without using the testing?
+
+   Instead of having training and testing set we have:
+   1. Training
+   2. Cross validation
+   3. Testing
+
+   #+caption: Model Complexity Graph
+   [[file:img/mcg.png]]
+
+** 16: K-Fold Cross Validation
+
+   K-fold cross validation is a method so we don't have to throw away
+   out testing data, which might be valuable.
+
+   We put our training and testing data into different randomized
+   buckets.
+
+   #+caption: Cross Validation
+   [[file:img/sk.png]]
+
+** 17: Cross Validation for Time Series
+
+   Methods for choosing training, testing and validation sets for
+   time-series data work a little differently than the methods
+   described so far. The main reasons we cannot use the previously
+   described methods exactly as described are,
+
+    1. We want our validation and testing procedure to mimic the way
+       our model would work in production. In production, it's
+       impossible to train on data from the future. Accordingly,
+       training on data that occurred later in time than the
+       validation or test data is problematic.
+    2. Time series data can have the property that data from later
+       times are dependent on data from earlier times. Therefore,
+       leaving out an observation does not remove all the associated
+       information due to correlations with other observations.
+
+    How do we modify cross validation procedures to treat time-series
+    data? A common method is to divide the data in the following
+    manner:
+
+    #+caption: Cross Validation for Time Series
+    [[file:img/cvf.png]]
+
+    This way, each training set consists only of observations that
+    occurred prior to the observations that form the validation
+    set. Likewise, both the training and validation sets consist only
+    of observations that occurred prior to the observations that form
+    the test set. Thus, no future observations can be used in
+    constructing the forecast.
+
+** Validation for Financial Data
+
+   Furthermore, when working with financial data, we can bring
+   practitioners' knowledge of markets and financial data to bear on
+   our validation procedures. We know that since markets are
+   competitive, factors decay over time; signals that may have worked
+   well in the past may no longer work well by the current time. For
+   this reason, we should generally test and validate on the most
+   recent data possible, as testing on the recent past could be
+   considered the most demanding test.
+
+   It's possible that the design of the model may cause it to perform
+   better or worse in different market regimes; so the most recent
+   time period may not be in a market regime in which the model would
+   perform well. But generally, we still prefer to use most recent
+   data to test if the model would work in the time most similar to
+   the present. In practice, of course, before investing a lot of
+   money in a strategy, we would allow time to elapse without changing
+   the model, and test its performance with this true out-of-sample
+   data: what's known as "paper trading".
+
+   In summary, most common practice is to keep a block of data from
+   the most recent time period as your test set.
+
+   Then, the data are split into train, valid and test sets according
+   to the following schematic:
+
+   #+caption: Financial Data Validation
+   [[file:img/fin.png]]
+
+   When working with data that are indexed by asset and day, it's
+   important not to split data for the same day, but for different
+   assets, among sets. This would manifest as a subtle form of
+   lookahead bias. For example, say data from Coca-Cola and Pepsi for
+   the same day ended up in different sets. Since they are very
+   similar companies, one might expect their share price trends to be
+   correlated. If the model were trained on data from one company, and
+   then validated on data from the other company, it might "learn"
+   about a price movement that affects both companies, and therefore
+   have artificially inflated performance on the validation set.
+
+* Lesson 18: Random Forests
+** 1: Intro
+
+   Trees are great but decision trees have some problems: they are
+   typically less accurate than other methods, and they are very prone
+   to overfitting.
+
+   An approach that generates multiple trees and then combines them is
+   often better than decision trees alone. This also prevents
+   overfitting which is of chief concern for financial applications.
+
+** 3: Ensemble Methods
+   
+   
+   Great, so now that you’ve learned about decision trees, let’s learn
+   about some new methods for making them more powerful. The idea is
+   actually quite simple: we’re going to combine several weaker models
+   (in this case, individual decision trees) together to make a more
+   powerful model. The constituent models are called weak learners,
+   while the combined model is called the strong learner. Combining
+   many models together to yield a more powerful model is called
+   ensembling.
+
+   A key part of ensembling, though, is that the constituent models
+   are not the same. In fact, ensembles tend to yield better results
+   when the constituent models are very different. So how do we use
+   the same dataset to grow many different trees? Well, there are
+   actually many ways. Let’s discuss a few of the most commonly used
+   ones.
+
+   #+caption: Sample Dataset
+   [[file:img/ensemble.png]]
+
+   
+   Most commons ways:
+   1. For every tree, create a new dataset by drawing a random subset
+      of rows from the original dataset. Train the tree on this new
+      dataset.
+
+   2. For every tree, create a new dataset by drawing a random subset
+      of rows from the original dataset with replacement. Train the
+      tree on this new dataset.
+
+   3. For every tree, create a new dataset by drawing a random subset
+      of columns from the original dataset. Train the tree on this new
+      dataset.
+
+   These are examples of "perturbations"—ways to "shake up" the
+   constituent trees in order to ensure that they are different from
+   each other. These are all examples of ways to introduce
+   "perturbations" randomly and independently. In contrast, there's
+   another class of methods where perturbations (on a given training
+   set) are chosen deterministically and serially, with the nth
+   perturbation depending strongly on all of the previously generated
+   rules. So that we have more time to talk about the random and
+   independent methods, we’re not going to talk more about the
+   deterministic and serial methods for now.
+
+** 4: Perturbations on Columns
+
+   #+caption: Random Subspaces
+   [[file:img/sub.png]]
+
+   Because decision trees tend to overfit, we often can get better
+   results by taking random columns. Then we have each tree vote.
+
+   Importance of Random Column Selection:
+
+   Sometimes one feature will dominate in finance. If you don’t apply
+   some type of random feature selection, then your trees will not be
+   that different (i.e., will be correlated) and that reduces the
+   benefit of ensembling.
+
+   What features are typically dominant? Well, we'll talk about this
+   more later when we talk about feature engineering, but when we use
+   random forests for alpha combination, some of our features are
+   alpha factors. Classical, price-driven factors, like mean reversion
+   or momentum factors, often dominate. You may also see that features
+   that define industry sectors or market "regimes" (periods defined,
+   for example, by high or low market volatility or other market-wide
+   trends) are towards the root of the tree.
+
+** 5: Perturbations on Rows
+
+   Another way to generate different trees is to grow each tree on a
+   random subset of the original dataset's rows. Subsets can be
+   generated with or without replacement. When it's done with
+   replacement, it's called bagging, and when it’s done without
+   replacement, it’s called pasting. Bagging is short for bootstrap
+   aggregating.
+
+   #+caption: Weak Learners: one-node decision trees
+   [[file:img/weak.png]]
+
+   With bagging we take a random subset of data and use a one-node
+   decision trees.
+
+   We then have the weak learners vote:
+   #+caption: Bagging
+   [[file:img/learners.png]]
+
+** 6: Forests of Randomized Trees
+
+   Random Forests
+
+   Random Forests are ensemble prediction algorithms that use both
+   random column and random row selection. Each tree in the ensemble
+   is created as follows:
+
+   If the number of rows in the training dataset is N, generate the
+   dataset for each constituent tree by choosing N rows at random —
+   but with replacement — from the original data.
+
+   If there are M columns in the training dataset, pick a number
+   m<<M. At each node, select m columns at random out of the M and use
+   the best split of possible splits on these m columns to split the
+   node. The value of m is held constant during the forest growing. m
+   is known as the max_features parameter, and the default value is
+   sqrt(M).
+
+   Grow each tree to the largest extent possible.
+
+   For a regression tree model, use the average value of the ensemble
+   of trees' predictions. For a classification model, use the mode of
+   the ensemble of trees' predictions.
+   
+   #+caption: Step 1: Generate Dataset
+   [[file:img/boot.png]]
+
+   #+caption: Create Splits
+   [[file:img/split.png]]
+
+   #+caption: Repeat to generate multiple trees
+   [[file:img/mult.png]]
+
+   Now we have a bunch of different trees with different branches. Now
+   when we want to classify a piece of data we let the trees vote.
+
+** 7: Random Forest Exercise
+
+   [[file:udacity-part2/spam_rf_solution.html][Spam RF]]
+
+** 8: The Out-of-Bag Estimate
+
+   Out-of-bag estimate can be useful to find a error score. The
+   out-of-bag samples are the samples that were not used by each bag.
+
+** 9: Random Forest Hyperparameters
+
+   You may have noticed that the values of several hyperparameters
+   were set to default values when we instantiated the Random Forest
+   model in the last exercise. Let's discuss a few of these
+   hyperparameters and learn how they influence the model.
+
+   We've seen a few of the Random Forest hyperparameters before
+   because they are also hyperparameters of the individual decision
+   trees in the forest.
+ 
+   min_samples_leaf
+         - As before, this is the minimum number of observations
+           allowed at a leaf. Setting this hyperparameter keeps the
+           algorithm from further splitting nodes with very few
+           observations.  
+
+   min_samples_split
+        - As before, this is the minimum number of observations
+          required to be at node before it can be split. Setting this
+          hyperparameter keeps the algorithm from further splitting
+          nodes with very few observations.
+
+          However, as stated earlier, this hyperparameter does not
+          actually prevent very small leaf nodes from being
+          created. If a node has at least min_samples_split
+          observations, then it can be split, and this split can
+          result in a leaf with fewer than min_samples_split
+          observations.
+
+   max_features
+        - This sets the maximum number of features to evaluate when
+          randomly sampling features at each split and deciding which
+          feature to use to create the next split. The default value
+          is the square root of the total number of features in the
+          dataset.
+
+          In fact this is also a hyperparameter of the single decision
+          tree classes, so it's possible to randomly choose subsets of
+          features to evaluate at each split even when growing a
+          single decision tree.
+
+   n_estimators
+        - This is not a hyperparameter of individual decision trees
+          because it's only applicable when growing forests—this is
+          the number of trees to grow in the forest.
+
+   oob_score
+        - This is a boolean hyperparameter that you set to True if you
+          want the out-of-bag score to be calculated as an estimate of
+          out-of-sample accuracy.
+
+   bootstrap
+        - This is a boolean hyperparameter that sets whether or not
+          bootstrap samples are used to grow the trees. If False, the
+          entire original dataset is used to grow each tree.
+
+   n_jobs
+        - This parameter allows you to use parallel threads to perform
+          some parts of the algorithm's computations. Set n_jobs = -1
+          to use all available CPUs. Most often, parallelism happens
+          in fitting, but sometimes, as for random forests, it happens
+          during prediction.
+
+** 10: Choosing Hyperparameter Values
+
+   Let's say we are trying to choose the min_samples_leaf
+   hyperparameter, and want to avoid overfitting. How many training
+   samples would we choose to be the minimum per leaf? In
+   non-financial and non-time series machine learning, setting this
+   hyperparameter is fairly straightforward: you use grid search
+   cross-validation to find the value that maximizes the model’s
+   performance on validation data. When you have time-series data, you
+   typically don’t use cross-validation because usually you just want
+   a single validation dataset that is as close in time as possible to
+   the present. If you have a problem with high signal-to-noise, then
+   you can try a bit of parameter tuning on the single validation
+   set. In finance, though, you have time series data and you have low
+   signal-to-noise. Therefore, you have one validation set and if you
+   were to try a bunch of parameter values on this validation set, you
+   would almost surely be overfitting. As such, you need to set the
+   parameter with some judgement and minimal trials. Later, we'll
+   discuss a bit more about how we make this choice in the project.
+
+** 11: Random Forests for Alpha Combination
+
+   So we've seen how random forests are used for certain problems,
+   like predicting a consumer's app preference from personal data. How
+   do we use random forests for alpha combination?
+
+   #+caption: Alpha Combination Data Subset
+   [[file:img/fint.png]]
+
+   For this type of problem, we have data that look like the
+   above. Each row is indexed by both date and asset. We typically
+   have several alpha factors, and we then calculate "features", which
+   provide the random forest model additional information. For
+   example, we may calculate date features, which the algorithm could
+   use to learn that certain factors are particularly predictive
+   during certain periods.
+
+   #+caption: Example Alpha Combination Tree
+   [[file:img/fintree.png]]
+
+   What are we trying to predict? We're trying to predict asset
+   returns —but not their decimal values! We rank them relative to
+   each other into only two buckets, such that we essentially predict
+   winners and losers on the day. The next lesson is all about feature
+   engineering, so let's move on to learn more about features and
+   labels in more detail!
+
+** 12: Outro
+
+   In this lesson we learned about a class of ensemble methods that
+   create a forest of decision trees. Certain alpha perform better or
+   worse in different market conditions. If we can create additional
+   inputs that give a model more information, then it good perform
+   better. This is called feature engineering.
+* Lesson 19: Feature Engineering
+
+   [[udacity-part2/feature_engineering_solution.html][Feature Engineering]]
+
+* Lesson 20: Overlapping Labels
+** Intro
+   
+   When labels are not independent, it violates assumptions of many
+   machine learning models.
+
+** 3: Frame the Problem
+
+   For random forests, if each row are not i.i.d, then the decision
+   trees are likely to be similar. The more correlated the rows are,
+   the correlated the trees it produce will be. This will increase the
+   error rate.
+
+** 4: Simple Solution
+
+   The simplest solution for time-series data is to sample windows
+   that don't overlap. The downside is that this minimizes the amount
+   of data we can use.
+
+** 5: Possible Solution 2
+
+   This idea is proposed in Marcos Lopez de Prado's book, Advances in
+   Financial Machine Learning, which is an interesting resource for
+   further reading on this topic. A further question Lopez de Prado
+   touches on is what bag size to use according to this method.
+
+   One recommendation is to reduce the size of each bag to be a
+   fraction of the number of rows of the original dataset. As the
+   fraction, use 1 divided by the number of labels that overlap at
+   each time point, on average. So if you were using weekly returns,
+   the fraction would be $1/2$, or 0.2.
+
+   Reduce the bag size using the sklearn parameter 'max_samples'.
+
+** 6: Possible Solution 3
+
+   Train separate random forest models for each day of the week
+   spanning, say a week. Then we can ensemble all of these models
+   together.
+
+** 7: Dependent Labels Exercise
+
+   [[~/learn/quant/udacity-part2/dependent_labels_solution.html][Dependent Labels]]
+
+* Lesson 21: Feature Importance
+** 1: Intro
+
+   Blackbox vs whitebox trade-off: Sometimes you might want to choose
+   a simple model instead of a complex one.
+
+** 2: Feature Importance in Finance
+
+   Feature importance: how much each feature effects the prediction of
+   the model.
+
+   By feeding your model only the most important features, you can
+   increase out of sample accuracy.
+
+** 3: Feature Importance in Scikit-learn
+
+   In tree based models, sklearn measures the importance of features
+   by comparing the purity of it's child nodes vs it's purity. The
+   more pure the feature makes the nodes, the more important the
+   feature.
+
+** 4: sklearn Exercise
+
+   [[~/learn/quant/udacity-part2/sklearn_feature_importance_solution.html][Sklearn Feature Importance]]
+
+** 6: When Feature Importance is Inconsistent
+
+   There are many of methods for interpreting machine learning models,
+   and for measuring feature importance. Many of these methods can be
+   inconsistent, which means that the features that are most important
+   may not always be given the highest feature importance score. We
+   noticed this in the prior coding exercise, where there were two
+   equally important features that form the " AND" operator, but one
+   was given a feature importance of 0.33 because it was used for
+   splitting the tree first, and the other was given a score of 0.67
+   because it was used for splitting second.
+
+   This is the motivation for using the latest feature attribution
+   method, Shapley Additive Explanations, which we'll see next.
+
+   If you wish to explore the concept of consistent feature
+   attribution further, here's a blog post that discusses some of the
+   inconsistency seen in feature importance calculation methods.
+
+   [[https://towardsdatascience.com/interpretable-machine-learning-with-xgboost-9ec80d148d27][Interpretable Machine Learning with XGBoost]]
+
+** 7: Shapley Additive Explanations
+
+   If you had three basketball players, how would you determine how
+   much each player contributes to the team?
+
+   We could switch out each player and see how the team performs with
+   and without each player. This is how Shapley works.
+
+** 8: Shap Exercise
+
+   [[file:udacity-part2/calculate_shap_solution.html][Calculate Shap]]
+
+** 10: Tree Shap Exercise
+
+   [[file:udacity-part2/tree_shap_solution.html][Tree Shap]]
+
+** 12: Rank Features Exercise
+
+   [[udacity-part2/rank_features_solution.html][Rank Features]]
+
+* Project 7: Combining Signals for Enhanced Alpha
+
+  [[file:udacity-part2/project_7_starter.html][Combining Signals for Enhanced Alpha]]
+
+* Lesson 25: Intro to Backtesting
+** 2: What is a Backtest?
+
+   A backtest is a simulation of running a trading strategy over a
+   period of time. A backtest must simulate daily P/L: This is the
+   profit calculation.
+
+** 3: Backtest Validity 
+
+   A "valid" backtest must satisfy:
+   1. The profit calculation is realistic
+   2. No lookahead bias
+   
+   Examples of unrealistic profit calculation:
+   1. Underestimating trading costs
+   2. Ignoring categories of costs, such as financing or taxes.
+   3. Unrealistic volumes
+   4. Executing at the close price
+   5. Unrealistic borrowing
+
+   Examples of lookahead bias:
+   1. Use of "tomorrow's news" today
+   2. Use of "this evening's news today"
+   3. Use of torday's closing price for trading today
+
+   Be careful with new tech: testing a neural network strategy in a
+   time period where no one had a neural network is probably invalid.
+
+** 4: Backtest Overfitting
+
+   You cannot use the test set for improving your data.
+
+   You can access Elements of Statistical Learning by Hastie,
+   Tibshirani and Friedman [[https://web.stanford.edu/~hastie/Papers/ESLII.pdf][here]].
+
+   [[http://datagrid.lbl.gov/backtest/index.php][This website]] is useful for exploring backtest overfitting.
+
+** 5: Overtrading
+
+   Trading in larger sizes than would be optimal. This is called
+   overtrading. Unless you can prove that a complicated model won't
+   overfit, it's often better to use a simpler model.
+
+** 6: Backtest Best Practices
+
+   
+   1. Use cross-validation to achieve just the right amount of model
+      complexity.
+
+   2. Always keep an out-of-sample test dataset. You should only look
+      at the results of a test on this dataset once all model
+      decisions have been made. If you let the results of this test
+      influence decisions made about the model, you no longer have an
+      estimate of generalization error.
+
+   3. Be wary of creating multiple model configurations. If the Sharpe
+      ratio of a backtest is 2, but there are 10 model configurations,
+      this is a kind of multiple comparison bias. This is different
+      than repeatedly tweaking the parameters to get a sharpe ratio
+      of 2.
+
+   4. Be careful about your choice of time period for validation and
+      testing. Be sure that the test period is not special in any way.
+
+   5. Be careful about how often you touch the data. You should only
+      use the test data once, when your validation process is finished
+      and your model is fully built. Too many tweaks in response to
+      tests on validation data are likely to cause the model to
+      increasingly fit the validation data.
+
+   6. Keep track of the dates on which modifications to the model were
+      made, so that you know the date on which a provable
+      out-of-sample period commenced. If a model hasn't changed for 3
+      years, then the performance on the past 3 years is a measure of
+      out-of-sample performance.
+
+   
+   Traditional ML is about fitting a model until it works. Finance is
+   different—you can’t keep adjusting parameters to get a desired
+   result. Maximizing the in-sample sharpe ratio is not good—it would
+   probably make out of sample sharpe ratio worse. It’s very important
+   to follow good research practices.
+
+** 7: Structural Changes
+
+   When the model performs much better on the training set than the
+   validation or testing set, your model might be overfitting. Another
+   explanation might be structural changes. But the effect is the
+   same: the future is ultimate out of sample test set.
+
+   How does one split data into training, validation, and test sets so
+   as to avoid bias induced by structural changes? It’s not always
+   better to use the most recent time period as the test set,
+   sometimes it’s better to have a random sample of years in the
+   middle of your dataset. You want there to be nothing SPECIAL about
+   the hold-out set. If the test set was the quant meltdown or
+   financial crisis—those would be special validation sets. If you
+   test on those time periods, you would be left with the unanswerable
+   question: was it just bad luck? There is still some value in a
+   strategy that would work every year except during a financial
+   crisis.
+
+   Alphas tend to decay over time, so one can argue that using the
+   past 3 or 4 years as a hold out set is a tough test set. Lots of
+   things work less and less over time because knowledge spreads and
+   new data are disseminated. Broader dissemination of data causes
+   alpha decay. A strategy that performed well when tested on a
+   hold-out set of the past few years would be slightly more
+   impressive than one tested on a less recent time period.
+
+** 8: Gradient Boosting
+
+   In our exercise about overfitting, we're going to use a type of
+   model that we haven't yet encountered in the course, but that's
+   popular and well-known, and has been used successfully in machine
+   learning competitions: gradient boosted trees. Here we're going to
+   give you a short introduction to gradient boosting so that you have
+   an intuition for how the model works.
+
+   We've already studied ensembling; well, boosting is another type of
+   ensembling, or combining weak learners into a strong learner. It's
+   also typically done with decision trees as the weak learners. The
+   video below will give you a quick introduction to boosting by
+   telling you about the first successful boosting algorithm,
+   Adaboost.
+
+   
+   Adaboost:
+   1. Fit an additive model (ensemble) in a forward stage-wise manner.
+   2. In each stage, introduce a weak learner to compensate the
+      shortcomings of existing weak learners.
+   3. In Adaboost,"shortcomings" are identified by high-weight
+      datapoints (this is what is meant in the video by making the
+      points "bigger").
+
+   Gradient boosting is very similar. In essence, it allows the user
+   to customize the method used to identify the "shortcomings" of
+   existing weak learners (the cost function). If you want to learn
+   more about the details, [[http://blog.kaggle.com/2017/01/23/a-kaggle-master-explains-gradient-boosting/][try this page]].
+
+** 9: Overfitting Exercise
+
+   [[file:udacity-part2/overfitting_exercise_solution.html][Overfitting]]
+
+* Lesson 26: Optimization with Transaction Costs
+** 1: Intro
+
+   In this lesson, we’ll show you how to incorporate transaction costs
+   into portfolio optimization. This will give your backtest a more
+   realistic measure of your alpha’s performance. In addition, we’ll
+   show you some additional ways to design your optimization with
+   efficiency in mind. This is really helpful when backtesting,
+   because having reasonably shorter runtimes allows you to test and
+   iterate on your alphas more quickly.
+
+** 2: Exercise
+
+      [[file:udacity-part2/optimization_with_tcosts_solution.html][Optimization with Transactions Costs]]
+
+** 4: Time Offsets
+
+   It would be reasonable to assume that there is a two day gap
+   between re-balancing  and actually realizing the returns.
+
+** 5: Holding in Dollars
+
+   During the alpha research stage, out portfolio is in terms of
+   weights. We don't need to know how much money we have.
+
+   But during backtesting, we need to work with dollars.
+
+   Alpha research stage optimizer ($x$ are weights):
+   $$ \sum_{i}^{N}|x_i| \leq 100\%$$
+
+   Backtesting optimizer ($h$ are holdings):
+   $$ \sum_{i}^{N}(|h_i|) = \$50m$$
+
+   By talking about holdings (dollars) instead of weights, we are
+   referring to an absolute portfolio or holding size.
+
+** 6: Scaling Alpha Factor
+
+   Expected portfolio return is dollars:
+   $$ \alpha^T h$$
+
+   $$ \alpha = \text{Factor Exposures} $$
+   $$ h = \text{Holdings} $$
+
+   We make the assumption that 1 unit of factor exposure maps to 1
+   basis point of daily return.
+
+   Annualized spread of two stocks with a differing factor exposure of
+   one leads to difference in return of 5%.
+
+   #+caption: Scalaing Alpha Factor
+   [[file:img/back.png]]
+
+** 7: Transaction Costs
+
+   By buying, this pushes the price upward. By selling, you push the
+   price downward. This is a problem for investment managers.
+
+   #+caption: Bid Ask
+   [[file:img/bidask.png]]
+
+   Most likely, you will not be able to execute your entire
+   transaction at one price.
+
+   #+caption: Price Impact on Trading
+   [[file:img/struct.png]]
+
+** 8: Transaction Cost Formula
+
+   We can use a linear impact variable to model transaction costs. 
+
+   #+caption: Linear Transaction Costs Model
+   [[file:img/change2.png]]
+
+   #+caption: Square-Root Transaction Costs Model
+   [[file:img/sqrt.png]]
+
+
+   We can look our trade volume vs the total trade volume that
+   day. This is called the trade size.
+
+** 9: Linear Transaction Cost Model
+
+   A commonly used metric for the linear cost model is that 1% of ADV
+   changes the price by 10 basis points.
+
+   #+caption: Linear Impact Model
+   [[file:img/lim.png]]
+
+   #+caption: Linear Impact Model
+   [[file:img/lim2.png]]
+
+   #+caption: Linear Impact Model
+   [[file:img/lim3.png]]
+
+   To learn more about the square root impact model, Gordon recommends
+   this paper, [[https://arxiv.org/pdf/1811.05230.pdf][Crossover from Linear to Square-Root Market Impact]].
+   
+** 10: Optimization without Constraints
+
+   Contraints can either not change the solution, or make the solution
+   sub-optimal. Many optimizers don't support constraints, Moreover,
+   it significantly affects the performance. For this reason, we want
+   to avoid using constraints.
+
+   Examples of constraints:
+   1. Market neutral
+   2. Position size
+   3. Portfolio diversification
+
+** 11: Risk Factor Matrix  
+
+   Sometimes we want to discard the covariances in the factor matrix
+   and just use the variances (along the diagonal). The benefits and
+   throwing away the covariances sometimes reduces the amount of noise
+   is the data. Also this makes our model more efficient, which is a
+   large constraint for backtesting.
+
+** 12: Avoid N by N Matrix
+
+   #+caption: Factor Exposures
+   [[file:img/risk.png]]
+
+   #+caption: Factor Exposures
+   [[file:img/factor.png]]
+
+   #+caption: Factor Exposures
+   [[file:img/factor2.png]]
+
+   #+caption: Factor Exposures
+   [[file:img/factor3.png]]
+
+   #+caption: Factor Exposures
+   [[file:img/factor4.png]]
+
+** 13: Risk Aversion Parameter
+
+   #+caption: Risk Aversion Parameter
+   [[file:img/gmv.png]]
+
+** 14: Objective Function, Gradient and Optimizer
+
+   This Scipy link [[Mathematical optimization]] is a good reference on
+   the various optimizers that are available in scipy. In addition to
+   the L-BFGS method, other optimizers worth trying are Powell,
+   Nelder-Mead, and Conjugate Gradient optimizers.
+   
+** 15: Outro
+
+   In this lesson, you learned about some core steps that you’d take
+   to design a backtest. You practiced incorporating a time delay to
+   account for when information is received, and to allow for trading
+   into the desired position. You also learned to model transaction
+   costs, and designed the optimization with computational efficiency
+   in mind.
+
+** 16: ML for Trading Interview
+   
+   Here is Gordon's paper [[https://cims.nyu.edu/~ritter/ritter2017machine.pdf][Machine Learning for Trading]]. You can find
+   Gordon's other major publications [[https://cims.nyu.edu/~ritter/][here]].
+* Lesson 27: Attribution
+** 1: Intro
+
+   In this lesson we are going to learn about attribution: the drivers
+   of risk and return.
+
+** 2: Review of Multi-Factor Models
+
+   
+   Recall that in a multi-factor model, returns, $\mathbf{r}$, are
+   expressed in terms of factor exposures, $\mathbf{B}$, and factor
+   returns $\mathbf{f}$. The part of returns not attributable to
+   factors is called the idiosyncratic return, $\mathbf{s}$.
+
+   $$\textbf{r} = \textbf{B}\textbf{f} + \textbf{s}$$
+
+** 3: Exposure Vector
+
+   #+caption: Exposure Vector
+   [[file:img/exp.png]]
+
+** 4: Variance Decomposition
+
+   $$\text{Var}[\textbf{r}] = \Sigma = \textbf{B}^T\textbf{FB} + \textbf{S}$$
+
+   Multiple by $\textbf{h}^T$ and $\textbf{h}$:
+
+   $$\textbf{h}^T\Sigma\textbf{h} = \textbf{h}^T(\textbf{B}^T\textbf{FB} + \textbf{S})\textbf{h}$$
+
+   Expand:
+
+   $$\textbf{h}^T\Sigma\textbf{h} = \textbf{h}^T(\textbf{B}^T\textbf{FB})\textbf{h} + \textbf{h}^T\textbf{Sh}$$
+
+   Substituting:
+   $$\textbf{E} = \textbf{Bh}$$
+   
+   $$\textbf{h}^T\Sigma\textbf{h} = \textbf{E}^T\textbf{FE} + \textbf{h}^T\textbf{Sh}$$
+
+   Divide by the variance to get the variance decomposition:
+
+   $$\frac{\textbf{h}^T\Sigma\textbf{h}}{\textbf{h}^T\Sigma\textbf{h}} = 1 = \frac{\textbf{E}^T\textbf{FE}}{\textbf{h}^T\Sigma\textbf{h}} + \frac{\textbf{h}^T\textbf{Sh}}{\textbf{h}^T\Sigma\textbf{h}}$$
+
+   $$1 = \sum_{i=1}^{K}E_i \frac{(\textbf{FE})_i}{\textbf{h}^T\Sigma\textbf{h}} + \frac{\textbf{h}^T\textbf{Sh}}{\textbf{h}^T\Sigma\textbf{h}}$$
+
+   Which is the i-th contribution and the idiosyncratic contribution.
+
+** 5: Performance Attribution
+
+   #+caption: P&L
+   [[file:img/pl.png]]
+
+** 6: Performance Attribution Exercise
+
+   [[file:udacity-part2/performance_attribution_solution.html][Performance Attribution]]
+   
+** 7: Attribution Reporting
+
+   Let's take this opportunity to look at an example attribution
+   report in a fund's documentation.
+
+   In this first example, we can see the risk of a portfolio
+   decomposed using a fundamental risk model. Fundamental factors are
+   factors based on common sources of risk. Their meaning remains the
+   same over time, even if the factor exposures are updated daily. The
+   total predicted active risk of 3.63% annual volatility can be split
+   into a specific/idiosyncratic component, which accounts for 39% of
+   variance (as calculated using a variance decomposition), and a
+   factor component, which can be further split into the contributions
+   of 3 fundamental factors.
+
+   #+caption: Attribution
+   [[file:img/attr.png]]
+
+   You can do the same sort of attribution with statistical risk
+   factors, but the individual risk factors are hard to interpret. In
+   the example below, most of the risk is attributed to Statistical
+   Factors 2, 1 and 6, however this does not immediately provide a lot
+   of insight. Additional analysis would seek to understand whether
+   other, interpretable factors are similar to Statistical Factor 6.
+
+   #+caption: Attribution
+   [[file:img/attr2.png]]
+
+** 8: Understanding Portfolio Characteristics
+
+   There are a few other things we can calculate that help us
+   understand our portfolio's performance. For each time period:
+
+   GMV (gross market value) is the sum of the absolute value of your
+   holdings, long and short. This is a good gauge of the overall size
+   of your portfolio. $GMV = \sum_{i}|h_i|$.
+
+   Net holdings tell you the relative balance of long to short
+   positions. Net holdings = $\sum_{i}h_i$.
+
+   You can also calculate the total long and short holdings. Total
+   long =$\sum_{h_i>0}h_i$, total short = $\sum_{h_i<0}h_i$.
+
+   Total dollars traded tells you the approximate value of the trades
+   you made. It can help you get a sense of how much trading you're
+   doing, and the value of your trades relative to your
+   holdings. Dollars traded = $\sum_{i}|h_{i,t}-h_{i,t-1}|$.
+
+** 9: Outro
+
+   In this lesson we learned how to decompose performance into factor
+   performance
+
+* Project 8: Backtesting
+
+  [[file:udacity-part2/project_8_starter.html][Backtesting with Barra data]]

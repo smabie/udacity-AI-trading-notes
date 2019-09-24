@@ -1,0 +1,3558 @@
+#+OPTIONS: tex:t
+#+STARTUP: latexpreview
+#+STARTUP: inlineimages
+#+STARTUP: showeverything
+
+#+TITLE: Udacity AI for Trading Part 1 Notes
+#+AUTHOR: Sturm Mabie
+
+* Lesson 5: Data Processing
+
+** 3: Corporate Actions: Stock Splits
+
+   Dividend adjusted price factor:
+
+   $$1 + \frac{D}{S}$$
+
+   Split adjusted price: divide by split ratio
+
+** 4: Technical Indicators
+
+   SMA (Simple Moving Average): rolling average over a window of
+   prices.
+
+   Bollinger Bands: Bands at a certain $\sigma$ (commonly $2\sigma$)
+   above or below the SMA. Can be used for mean reversion or breakout.
+
+** 5: Missing values
+
+   Stock time-series often have many missing values (weekends,
+   holidays, etc).
+
+   NYSE (calender): 252 trading days in a year
+
+** 8: Survivor Bias
+
+   If you only pick stocks that exist today when looking at historical
+   time-series data, you are skewing your results.
+
+** 9: Fundamental Information
+
+   Sales Per Share:
+
+   $$ SPS = \frac{sales}{N_{shares}} $$
+
+   Earnings Per Share: 
+
+   \begin{align*}
+   EPS =& \frac{earnings}{N_{shares}} \\
+   earnings =& revenue - cost\,of\,sales
+   \end{align*}
+   
+   Dividends Per Share: 
+
+   $$ DPS = \frac{total\,dividends}{N_{shares}} $$
+
+* Lesson 6: Stock Returns
+
+** 1: Returns
+
+   Raw returns are the difference between the old price and the new
+   price.
+
+   $$ r = \frac{P_t - P_{t - 1}}{P_{t - 1}} $$
+
+** 3: Log Returns
+
+   $$ R = \ln \left(\frac{P_t}{P_{t - 1}} \right) = \ln(r + 1) $$
+
+   $$ r = e^R - 1 $$
+
+   Log returns are only accurate close to zero.
+
+** 6: Why Log Returns?
+   
+   Time additive, normally distributed, prevents prices from becoming
+   negative in models, easier to work with.
+
+* Lesson 7: Momentum Trading
+
+** 2: Momentum-Based Signals
+
+   Momentum: Prices often are more likely to rise when they have
+   already risen
+
+   You can deteremine momentum by volume, technical indicators, or new
+   highs.
+
+** 4: Long and Short Positions
+
+   Portfolio: A collection of investments held and managed together.
+
+   Long: The purchase of an asset under expectation that the price of
+   the asset will rise.
+
+   Short: Selling an asset under the expectation that the price will
+   decline. Often the asset is borrowed from a prime broker.
+
+** 6: Trading Strategy
+
+   Universe: A group of stocks that share common features
+
+   Simple Momentum Strategy:
+   1. Choose a stock universe
+   2. Re-sample daily prices, extract month-end prices, compute log
+      returns
+   3. Rank by month-end returns, select top $n$ and bottom $n$
+   4. Compute long and short portfolio returns
+   5. Combine portfolio returns
+      
+** 9: Statistical Analysis
+
+   Mean return:
+
+   $$ \overline{x} = \frac{1}{n} \sum_{i = 1}^{n} x_i $$
+
+   T-Test:
+
+   $$ t = \frac{\overline{x}}{SE_{\overline{x}}} $$
+
+   Standard error of the mean: 
+
+   $$ SE_{\overline{x}} = \frac{\sigma}{\sqrt{n}} $$
+
+   Standard deviation:
+
+   $$ \sigma = \sqrt{Var(X)} $$
+
+   Variance:
+
+   $$ Var(X) = \frac{1}{n} \sum_{i = 1}^{n} (x_i - \overline{x})^2 $$
+
+   $P < 0.05$: if the t-test is $<.05$ we have a 95% chance that we
+   disprove the null hypothesis.
+
+** 10: Many Meanings of Alpha
+
+   Alpha is the extra value an investor can add to the performance of
+   an investment.
+
+   An alpha vector is a list of numbers, one for each stock in the
+   portfolio, that gives us a signal as to the relative future
+   performance of these stocks.
+
+** 13: Finding Alpha
+
+   1. Alpha research
+   2. Improve strategy
+   3. Backtesting
+
+* Lesson 8: Project 1: Trading with Momentum
+
+  [[file:udacity-part1/project_1_starter.html][Trading with Momentum]]
+
+* Lesson 9: Quant Workflow
+
+#+caption: Quant Strategy Workflow
+[[file:img/anatomy_of_a_strategy.png]]
+
+#+caption: Alpha Vector
+[[file:img/alpha_vector.png]]
+
+* Lesson 10: Outliers and Filtering
+
+  Causes of outliers:
+  1. Human error
+  2. Gaps in trading data
+  3. adjusted vs nominal data
+  4. Market crashes
+
+  If your distribution of returns doesn't look normal, there could be
+  outliers. Use a Q-Q plot to compare the quantiles of your return
+  distribution to the normal distribution.
+
+
+  
+  #+caption: Q-Q Plot of Symmetric Distribution
+  [[file:img/sym_QQ.png]]
+
+  #+caption: Q-Q Plot of Skewed Distribution
+  [[file:img/skew_QQ.png]]
+
+* Lesson 11: Regression
+
+** 1: Intro
+
+   This section contains two main concepts:
+   1. Checking and transforming data
+   2. Regression
+
+   Regression allows us to choose one or more independent variables to
+   predict a dependent variable.
+
+   Signal-to-noise ratio for finance is quite low.
+
+** 2: Distributions
+
+   Many statistical models assume a normal distribution. There are
+   many tests that we can use to verify relationships, but they only
+   work on data that is normally distributed.
+
+   Random variable - a variable that can take on a random value.
+
+   Probability distribution - the probability that the random variable
+   will take a certain value.
+
+** 4: Parameters of a Distribution
+
+   Probability Desnity Function: $PDF = X \sim D$. $X$ follows
+   distribution $D$.
+
+   $$ P(x | D) $$: how likely $x$ is, given $D$.
+
+   $X ~ N$: $X$ follows normal distribution.
+
+   $X ~ N(\mu,\sigma^2)$: normal distribution with mean $\mu$ and
+   variance $\sigma^2$
+
+   Equation for the PDF of the normal distribution:
+
+   $$ f(x \,|\, \mu,\sigma^2) = \frac{1}{\sqrt{2\pi\sigma^2}} e^{-\frac{(x - \mu)^2}{2\sigma^2}} $$
+   
+** 6: Testing For Normality
+
+   Plot histogram of our data over the normal distribution. We can
+   also use a Boxplot to determine the shape of our distribution.
+
+   
+   #+caption: Boxplot of a Normal Distribution
+   [[file:img/boxplot.png]]
+
+   Stock returns have fat tails (kurtosis) compared to a normal distribution.
+
+   P-tests for normality:
+   1. Shapiro-Wilk
+   2. D'Ahoistino-Pearson
+   3. Kolmogorov-Smirnov. Tests if two distributions are the same.
+
+   $$ P > 0.05 \rightarrow \text{normal} $$
+   $$ P < 0.05 \rightarrow \text{not normal} $$
+
+** Lesson 9: Heteroskedasticity 
+
+   Stationary: mean, variance, and covariance are the same over time.
+
+   Homoskedastic: variance is the same over time
+   Heteroskedastic: variance is different over time
+
+   Breush-Pagan Test:
+   $$ P < 0.05 \rightarrow \text{heteroskedastic} $$
+   $$ P > 0.05 \rightarrow \text{homoskedastic} $$
+
+** Lesson 10: Transforming Data 
+
+   1. What do we do when our data is not normal?
+   2. What do we do when our data is heteroskedastic?
+
+   To make our data normal, we can feed it into the log function. This
+   is why we use log returns.
+
+   Box-Cox Transformation: makes data both normal and homoskedastic.
+
+   $$ T(x) = \frac{x^\lambda - 1}{\lambda} $$
+
+
+   $\lambda$ is the constant you choose for transformation.
+
+   $$ \lambda = 0 \rightarrow T(x) = \ln x $$
+
+   Try different values for $\lambda$ and then test for
+   homoskedasticity and normality.
+
+** Lesson 11: Linear Regression
+
+   Example: If we want to estimate the price of the house based on the
+   area:
+
+   $$ y = \beta x + \alpha $$
+   $$ Price = \beta \times area + \alpha $$
+
+   #+caption: Linear Regression
+   [[file:img/linreg.png]]
+
+   $$ Residuals = y_{actual} - y_{predicted} $$
+
+   $$ Residuals \sim N(\mu = 0, \sigma^2) \rightarrow random $$
+
+   If the residuals aren't random, we there is bias in our prediction.
+
+   Evaluating the model:
+   1. R-squared
+   2. adjusted R-squared
+   3. F-test
+
+** Lesson 14: Multiple Regression
+
+   Example: price predicted based on area, rooms, and years:
+
+   \begin{align*}
+   price &= \beta_{11} \times area + \beta_{12} \times rooms + \beta_{13} \times years \\
+   electricity &= \beta_{21} \times area + \beta_{22} \times rooms + \beta_{23} \times years \\
+   gas &= \beta_{31} \times area + \beta_{32} \times rooms + \beta_{33} \times years \
+   \end{align*}
+
+** 15: Regression in Trading 
+
+   Using regression to predict the stocks return is difficult. We can
+   apply regression for time-series data.
+   
+* Lesson 12: Time Series Modeling
+
+** 1: Time Series Modeling
+
+   Time-series are data that are collected at regular intervals.
+
+   Outline:
+   1. Autoregression
+   2. Moving Averages
+   3. Autoregressive Moving Averages
+   4. Autoregressive Integrated Moving Averages
+   5. Kalman and Particle Filters
+   6. Recurrent Neural Networks
+
+** 2: Autoregressive Models
+
+   Tries to fit a line that is a linear combination of previous
+   values:
+
+   $$ y_t = \alpha + B_1 y_{t-1} + B_2 y_{t - 2} + ... + \epsilon_t $$
+
+   We define an AR model by it's lag:
+
+   $\text{AR}(p)$ means a p-lag model.
+
+** 3: Moving Average Models
+
+   $\text{MA}(Q)$ means a q-lag model.
+
+   $$ y_t = \mu + \epsilon_t + \theta_1 \epsilon_{t-1} + ... + \theta_q \epsilon_{t-q} $$
+
+   You can use auto-correlation to determine how much lag to
+   use. Generates values between 1 and -1.
+
+** 4: Advanced Time Series Models
+
+   $$ \text{AR}(p): y_t = \alpha + B_1 y_{t-1} + B_2 y_{t - 2} + ... + \epsilon_t $$
+
+   $$ \text{MA}(q): y_t = \mu + \epsilon_t + \theta_1 \epsilon_{t-1} + ... + \theta_q \epsilon_{t-q} $$
+
+   $$\text{ARMA}(p,\,q) = \text{AR}(p) + \text{MA}(q) $$
+
+   A variation of ARMA is ARIMA: Autoregressive Integrated Moving
+   Average.
+
+   Regression based time-series models requires stationary data. One
+   way to make data stationary is to take the item-wise difference
+   between adjacent time periods. This is why log returns are so
+   useful.
+ 
+   $I(n)$ means a time-series is integrated on order $n$.
+
+   Price: $I(1)$
+   Log returns: $I(0)$
+
+   Augmented Dickey Fuller Test: test the time-series being stationary.
+
+   #+caption: Autoregressive Integrated Moving Average
+   [[file:img/aug.png]]
+
+   
+    We keep taking the time difference (the derivative) until the data
+    is stationary by running the Augmented Dickey Fuller Test.
+
+** 6: Kalman Filter
+
+   For both MA and AR we have to choose the lag parameters. Kalman
+   filter has a single-state that represents the past.
+
+   Kalman filter runs two steps in a loop:
+   1. Predict: models the hidden state as a probability distribution.
+   2. Measurment Update: updates the hidden state based on new
+      observed data.
+      
+** 7: Particle Filter
+
+   A particle filter is a genetic algorithm that uses evolutionary
+   programming to help predict stock returns. Imagine you have a group
+   of daemons that each predict different things. Each daemon has a
+   model in which the parameters are set randomly. You can use
+   particle filters on data that is not stationary and normal.
+
+** 8: Recurrent Neural Networks
+
+   An RNN is called recurrent because some of it's output is fed back
+   as input. This recurrence property allows the RNN to remember past
+   information.
+
+   Long-Short Term Memory Cell (LSTM): a popular component of some
+   RNNs.
+
+* Lesson 13: Volatility
+
+** 1: What is Volatility?
+
+   Volatility is related to risk. Risk is uncertainty. How can we
+   quantify that?
+
+   Volatility is the $\sigma$ of log-returns. 
+
+   Examples of uses of volatility:
+   1. Measuring Risk
+   2. Defining position sizes
+   3. Designing alpha factors
+   4. Pricing options
+   5. Direct trading of volatility
+
+** 2: Historical Volatility
+
+   $$ \sigma = \sqrt{\frac{1}{n - 1} \sum_{i = 1}^{n}(r_i - \mu_i)^2} $$
+
+   If you took daily data and weekly data, you took the volatility,
+   you would get different values.
+
+   Daily average volatility: 0.006-0.03
+   Weekly average volatility: 0.01-0.07
+
+** 3: Annualized Volatility
+
+   $$ \sigma_{year} = \sqrt{252}\, \sigma_{day} $$
+
+   $$ \sigma_{year} = \sqrt{12}\,\sigma_{month} $$
+
+   If you are summing independent random variables:
+   $$ \text{Var}(A + B) = \text{Var}(A) + \text{Var}(B) $$
+
+** 6: Rolling Windows
+
+   We can use rolling windows to see the change in volatility
+   overtime. If your strategy involves holding securities for long
+   periods, you can use a longer window. Otherwise, you can use a
+   shorter-term window.
+
+** 8: Exponentially Weighted Moving Average
+
+   $$ \sigma_t^2 = \frac{\sum_{i = 0}^{n} \lambda^i r^2_{t - i - 1}}{\sum_{i = 0}^{n}\lambda^i} $$
+
+** 10: Forecasting Volatility
+
+   Traders sometimes try to forecast volatility. Volatility is a lot
+   sticker than price. When forecasting volatility you can use ARCH.
+   
+   Autoregressive Conditionally Heteroskedastic (ARCH):
+   1. Autoregressive means that the current value is related to the
+      past values.
+   2. Conditionally means there's constraint we put that limits the
+      heteroskedastic property to be dependent on the past values.
+   3. Heteroskedastic means the variance is changing.
+
+   $$ \text{ARCH}(1): \text{Var}(r_t | r_{t - 1}) = \alpha_0 + \alpha_1 r^2_{t - 1} $$
+   
+   You can think of $\alpha_0$ as the baseline variance while
+   $\alpha_1$ is the contributing variance from the previous return.
+
+   $$ \text{ARCH}(m): \text{Var}(r_t|r_{t-1}, r_{t-2}, ..., r_{t - m}) = \alpha_0 + \alpha_1 r_{t-1}^2 + \alpha_2 r_{t-2}^2 + ... + \alpha_m r_{t-m}^2 $$
+
+   You can generalize ARCH to also include previous estimations of the variance:
+
+   #+caption: GARCH
+   [[file:img/garch.png]]
+
+** 11: Markets & Volatility
+
+   In low volatility times, momentum strategies work well. In high
+   volatility environments, mean reversion strategies are often most
+   effective.
+   
+   #+caption: VIX vs S&P 500
+   [[file:img/vix.png]]
+ 
+** 12: Using Volatility for Equity Trading
+
+   A few examples of how to use volatility in trading:
+   1. You can classify stocks as high-volatile or low-volatile
+   2. If a stock has low volatility, you could use a mean-reversion
+      strategy.
+   3. Low volatility stocks tend to outperform high volatility
+      stocks. This is a mystery.
+   4. Limit your universe by volatility. 
+   5. Normalize by volatility.
+   6. Determine position size by volatility in order to limit
+      volatility of P/L.
+
+   Example formula of using volatility to determine position size:
+   #+caption: Using volatility to calculate position size
+   [[file:img/volpos.png]]
+
+** 13: Breakout Strategies
+
+   Bolling bands can be used to implement a breakout strategy.
+   #+caption: FB Stock Prices
+   [[file:img/fb.png]]
+
+   You can also use rolling max or min for a breakout strategy.
+   #+caption: AAPL Prices for 2016 with Rolling Max and Min
+   [[file:img/rolmax.png]]
+
+* Lesson 14: Pairs Trading and Mean Reversion
+
+** 1: Introduction
+   
+   In this lesson we will learn about mean reversion and
+   co-integration.
+
+   A Mean reverting time-series is one that moves back and forth
+   around a constant value. We can buy the stock when it is lower than
+   its historical price and short the stock when it is higher that its
+   historical price.
+
+   More commonly, we use mean reversion for a pair of companies. When
+   the prices of these two companies diverges significantly, we can
+   short one and long the other.
+
+** 2: Mean Reversion
+
+   We can model mean reversion with the drift and volatility model.
+
+   Drift and volatility model:
+   $$ \text{d}p_t = p_t \mu \text{d}t + p_t \sigma \epsilon \sqrt{\text{d}t} $$
+
+   $$ p_t \mu \text{d}t = \text{drift term} $$
+
+   $$ \sigma \epsilon \sqrt{\text{d}t} = \text{volatility term} $$
+
+   \begin{align*}
+   \text{d}p_t =& \text{change in price over time } t \\
+   p_t =& \text{current price} \\
+   \mu =& \text{constant average} \\
+   \text{d}t =& \text{change in time} \\
+   \sigma =& \text{standard deviation} \\
+   \epsilon =& \text{random noise factor} 
+   \end{align*}
+
+** 3: Pairs Trading
+
+   When two companies have economic links, this implies that their
+   stock prices should move together. The pairs trade involves
+   shorting the higher prices asset and going longer the cheaper
+   asset. After the spread has closed, we can close out our positions.
+
+   In pairs trading, we deal with the direct prices, instead of log
+   returns.
+
+   Because it is a market neutral strategy, we eliminate a lot of
+   market risk.
+
+   We want to hold amounts of stock A and B such that we are dollar
+   neutral. This is called the hedge ratio and we can use two methods
+   to calculate this:
+
+   $$ \text{Price Ratio}: \frac{B}{A} $$
+
+   $$ \text{Regression}: B = \beta A + \alpha $$ 
+
+   $$ \beta = \text{hedge ratio} $$
+
+   The difference between using the Price Ratio and the regression is
+   that while the Price Ratio just accounts for the most recent price
+   of stock A and B, the regression method takes into account past values.
+
+   Once we have the Hedge Ratio, we can calculate the Spread:
+   $$ \text{Spread} = B_{actual} - B_{estimate} $$
+   
+** 4: Finding Pairs to Trade
+
+   We want to find two companies that are linked:
+   1. Government Policies
+   2. Supply Chain
+   3. Time Zones
+
+   A time lag is a good scenario to look for in pairs trading.
+
+   Once we have found two companies that look like a good candidate
+   for pairs trading, we calculate the spread between the two
+   companies. If the spread is stationary, it might be a good pairs
+   trade.
+
+** 5: Cointegration 
+
+   When a series is stationary, it is I(0). Log prices is I(1).
+
+   The spread is the difference between the regression and the current
+   price. This is our value that we want to capture by longing one and
+   shorting the other.
+
+   $$ y_t = I(1) $$
+   $$ x_t = I(1) $$
+   $$ y_t = \alpha + \beta x_t $$
+   $$ \text{Spread} = y_t - (\alpha + \beta x_t) $$
+
+   
+   If the spread is stationary then $x$ and $y$ and cointegrated.
+
+   The Hedge Ratio $\beta$ is called the Coefficient of Cointegration.
+
+   Correlation and cointegration are not the same. Cointegration is a
+   linear relationship will correlation is not. 
+
+   Engle-Granger Test: medthod for finding two cointegrated securities:
+   1. Get hedge ratio from a linear regression.
+   2. Calculate spread and check if the spread is stationary via the
+      Augmented Dickey Fuller Test.
+   3. If the spread is stationary (P < 0.05, the two series are
+      cointegrated.
+
+** 6: Clustering Stocks
+
+   Would take much too long to find cointegrated stocks in the entire
+   S&P 500 universe. We could also use sector, but that is very obvious.
+
+   Alternatively, we could use a clustering algorithm to find
+   clusters.
+
+** 9: Trade Pairs of Stocks
+
+   It's important to determine what kind of threshold we want for
+   finding spreads. When the spread is unusually wide, we "short the
+   spread." 
+
+   #+caption: Spread
+   [[file:img/spread.png]]
+
+   Short the spread: short the asset that has increased, long the
+   asset that has decreased.
+
+   Long the spread: short the asset that has increased, long the
+   asset that has decreased.
+
+   We do the same thing in both scenarios. This is counterintuitive:
+   Buy Low Sell High.
+   
+   #+caption: Long/short the spread
+   [[file:img/spreadshort.png]]
+
+   
+   In order to find the spread thresholds we look at how many standard
+   deviations form it's historical average:
+
+   $$ Z \text{ score} = \frac{x - \overline x}{\sigma} $$
+
+   It's important that we backtest pair trading strategies:
+
+   #+caption: Backtesting
+   [[file:img/backtest.png]]
+
+   #+caption: Backtesting Process
+   [[file:img/bmodel.png]]
+
+** 11: Variations of Pairs Trading and Mean Reversion Trading
+
+   We can extend cointegration from two stocks to three stocks using a
+   method called the Johansen test.
+
+   The Johansen test gives us coefficients that we can multiply to
+   each of the two stock series, so that a linear combination produces
+   a number, and we can use it the same way we used the spread in the
+   prior pairs trading method.
+
+   $$ spread = \sum_{i}^{n} w_i \cdot stock_i $$
+
+   In other words, if the first stock series moves up significantly
+   relative to the second stock, we can see this by an increase in the
+   "spread" beyond its historical average. We will assume that the
+   spread will revert down towards its historical average, so we'll
+   short the first stock that is relatively high, and long the second
+   stock that is relatively low.
+
+** 12: 3 or more stocks
+
+   XXXTODO
+
+** 14: Summary
+
+   Mean Reversion Trading:
+   1. Find economic link.
+   2. Compute Hedge Ratio.
+   3. Get the Spread.
+   4. Is Spread stationary?
+   5. If Yes, cadidate for mean reversion trading.
+   6. Choose thresholds for spread.
+   7. If spread widens, short the spread.
+   8. If spread narrows, long the spread.
+   9. Backtest.
+  
+* Lesson 15: Project 2: Breakout Strategy
+
+  [[file:udacity-part1/project_2_starter.html][Breakout Strategy]]
+
+* Lesson 16: Stocks, Indices, Funds
+** 2: Intro to this lesson
+
+   Overview:
+   1. Stocks
+   2. Indices
+   3. Funds
+
+   $$ \text{equity} = \text{assets} - \text{liabilities} $$
+
+   A stock is the partial ownership of equities.
+
+** 3: Indices
+
+   Index: Aggregated value of a group of stocks company's equity.
+
+   Common Indices:
+   1. S&P: Standard and Poor's 500 Index (USA)
+   2. Dow: Dow Jones Industrial Average (USA)
+   3. IBOVESPA: Ibovespa Brasil Sao Paulo Stock Exchange Index (Brazil)
+   4. MERVAL: Buenos Aires Stock Exchange Merval Index (Argentina)
+   5. NIKKEI: Nikkei 225 Index (Japan) 
+   6. HANG SENG: Hang Seng Composite Index (Hong Kong)
+   7. FTSE 100: Financial Times Stock Exchange 100 Index (UK)
+   8. EURO STOXX: EURO STOXX 50 (Europe)
+   
+** 4: Market Cap
+
+   Index providers often divide indices into three catagories:
+   1. Large Cap
+   2. Mid Cap
+   3. Small Cap
+
+** 5: Growth V. Value
+
+   Growth stock: growth in sales, revenue, or earnings.
+
+   Value stock: stable sales, revenue, or earnings.
+
+** 6: Ratios
+
+   We can determine whether a company or growth or value by a couple
+   different metrics:
+   1. Price to Earnings
+   2. Price to Sales
+   3. Price to Book
+
+   We can rank stocks on these metrics.
+
+   Growth stocks have high ratios. Value stocks have low ratios.
+   
+   These ratios vary greatly by industry. 
+
+** 7: Index Catagories
+
+   Indices may use both market cap and growth vs value to group stocks.
+
+   S&P:
+   1. S&P 500
+   2. S&P MidCap 400
+   3. S&P SmallCap 600
+
+   In each of these groups, the stocks are ranked by either more value
+   or more growth.
+
+** 8: Price Weighting
+
+   We just add up the prices. Examples are the Nikkei and the Dow
+   Jones.
+
+   $$ \text{price weighting} = \sum_{i}^{n} price_i $$
+
+** 9: Market Cap Weighting
+
+   We can weight the index by market cap. Most indices are market cap weighted.
+
+   $$ \text{market cap weighting} = \sum_{i}^{n} (price_i \times N_{shares,i}) $$
+
+** 10: Adding or Removing from an Index
+
+   Removing from an index: index delete
+   Adding to and index: index add
+
+   We have to rebalance the index when index adds or deletes
+   happen. Other events that might trigger and index rebalance might
+   be privatization, merger, or bankruptcy.
+
+** 11: How an Index in Constructed
+
+   Hang Seng Index example:
+   
+   Day 1 index value: 100 points
+   Day 2 index value: percent change in total market cap X yesterday's index
+   
+** 12: Hang Seng Index Construction
+
+   Hang Seng is a capped free float adjusted market cap index 
+
+   Free Float: the number of public shares
+
+** 13: Index after Add or Delete
+
+   We just calculate the percent as usual.
+
+** 14: Funds
+
+   Fund: professionally managed portfolio of investor money.
+   Diversification: improve risk versus return (Sharpe ratio).
+
+** 15: Active vs. Passive
+   
+   Actively Managed Fund: seeks to outperform its benchmark (such as an index).
+
+   Passively Managed Fund: seeks to track its benchmark (such as an index).
+
+** 17: Smart Beta
+
+   Smart Beta: active + passive fund management.
+
+   We try to skew the index to either get a better Sharpe ratio.
+
+** 18: Mutual Funds
+ 
+   Mutual funds:
+   1. Long only
+   2. For everyday investors
+   3. No lock-up periods
+
+** 19: Hedge Funds
+
+   Hedge funds:
+   1. Long and Short
+   2. Derivatives (options, futures)
+   3. Leverage
+   4. Take money from HNW
+   5. Lockup periods
+
+** 20: Relative and Absolute Returns
+
+   Relative return: return above the benchmark.
+
+   For passive funds, this is called Tracking error.
+
+   $$ ExcessReturn = return_{portfolio} - return_{benchmark} $$
+
+   $$ DailyTrackingError = SampleStandardDeviation(ExcessReturn_{portfolio}) $$
+
+   $$ AnnualizedTrackingError = \sqrt{252} \cdot DailyTrackingError $$
+
+   Absolute return: return above the risk-free rate.
+
+** 21: Hedging Strategies
+
+   Hedging: entering into a transaction in order to reduce exposure to
+   price fluctuations.
+
+** 22: Net Asset Value
+
+   $$ NAV = \frac{AUM - expenses}{N_{shares}} $$
+
+** 23: Expense Ratios
+
+   $$ \text{Gross Expense Ratio} = \frac{expenses}{AUM} $$
+
+   $$ \text{Net Expense Ratio} = \frac{expenses - discounts}{AUM} $$
+
+** 24: Open End Mutual Funds
+
+   1. Open-end
+      - New investments allowed after fund starts.
+      - Withdraw directly from fund.
+
+   For open-ended funds, new investors pay the current share price.
+
+** 25: Handling Withdrawals
+
+   Because mutual funds need to fund withdrawals, a significant amount
+   of cash must be held.
+
+** 26: Close End Mutual Funds
+
+   Only accept money initially. No new investments. This means that
+   cash does not need to be kept on hand. Existing investors can sell
+   shares to other investors.
+
+** 27: Transaction Costs
+
+   Transaction costs:
+   1. Brokerage fees
+   2. Slippage due to large trades
+      
+   Large funds can trade within the institution in order to reduce
+   transaction costs.
+   
+* Lesson 17: ETFs
+** 1: Intro
+
+   ETFs are a significant innovation in the financial industry. They
+   did what smartphones did to computing and tech for finance. They
+   often have lower operational costs that mutual funds.
+
+** 2: Shortcomings of Mutual Funds
+ 
+   Shortcomings of open-end mutual funds:
+   1. Holding cash to handle withdrawals reduce performance
+   2. Investors have a limit on number of transactions with a time
+      period
+   3. Fund share price is determined when the market closes
+
+   Shortcomings of closed-end mutual funds:
+   1. Share prices may diverge from the fair value of the fund
+   
+   We can do better using ETFs:
+   1. Shares are tradable like stocks
+   2. Share prices follow fair value of the portfolio
+
+** 3: How ETFs are Used
+
+   ETFs can be used for commodities, stocks, and hedging. Investing in
+   commodities is easier with ETFs because it facilitates
+   securitization.
+
+   ETFs can be used for future's trading. With futures you will need
+   to close out your position near the expiration of the future. ETFs
+   can provide similar exposure but without the need to actively
+   manage the carry.
+
+   Futures contract are standardized agreements between two parties to
+   trade an asset at a future date, at a predetermined price.
+
+   The participant who agrees to buy is "long" the future.
+   The participant who agrees to sell is "short" the future.
+
+   If you entered into a futures contract and wish to cancel, or
+   "close" your position, you may do so by entering into an opposing
+   position in the same asset, at the same due date.
+
+   Note that futures are a form of standardized "forward contract." A
+   forward contract is a specific agreement between two parties that
+   isn't standardized for other buyers or sellers. Since forward
+   contracts are tailored specifically by the two counterparties,
+   they're not tradable like futures contracts. Forward contracts are
+   also referred to as "bespoke”, which is just another word for
+   "custom made” or "tailor made”.
+
+   Futures contracts have standard contract sizes, (also called "lot
+   sizes"), and also standard due dates. An example of a standard
+   contract size is the NYMEX Gold Futures, which has a contract size
+   of 100 troy ounces. Since futures are standardized, they are
+   tradable.
+
+   Investors who wish to gain exposure to commodities may buy futures
+   contracts, but this requires them to roll over their positions
+   regularly. Rolling over a futures contracts involves closing out
+   the existing position before its due date and then taking a new
+   position that is due at a later date. Commodity ETFs handle this,
+   so investors could more easily buy and hold shares in a commodity
+   ETF and not worry about rolling over individual futures contracts.
+   
+   If investors wish to trade international stocks, these stocks would
+   be listed on a stock exchange of another country, and may be in a
+   different time zone. This means that trading is done during the
+   stock exchange's open hours, which may not be as convenient for the
+   investor. International ETFs are traded on a local stock exchange,
+   while they are still linked to the stocks that are listed abroad
+   (you'll see how later in this lesson). So investors can trade
+   international ETFs during the open hours of their local stock
+   exchange.
+** 4: Hedging
+
+   Hedge funds use ETFs for hedging purposes. They may construct a
+   portfolio that optimizes their exposure to certain stocks that they
+   believe will perform well, and in order to cancel out general
+   market movements, they may also short an ETF that contains a
+   similar set of stocks. They may also short sector-specific ETFs if
+   they wish to have a neutral exposure to those sectors.
+   
+** 5: ETF Sponsors
+
+   ETF Sponsors are the financial institutions that issue ETFs. We can
+   think of them as most similar to the fund managers of mutual funds,
+   because they design a portfolio and issue ETF shares. ETF Sponsors
+   may generally charge lower fees compared to other types of funds,
+   in part because of some efficiencies that make it cheaper to run
+   the fund. We'll learn about some operational efficiencies later in
+   the lesson.
+
+   The largest ETF sponsors is iShares by BlackRock. ETF sponsors earn
+   fees based on a percentage of assets under management.
+
+** 6: Authorized Participant and the Create Process
+
+   Authorized Participants (APs) and ETF Sponsors partner together to
+   make the ETF system work. We can think of APs as the intermediaries
+   between investors and the ETF Sponsor. Unlike mutual funds or hedge
+   funds, ETF Sponsors don't take cash to invest, nor do they deal
+   directly with investors. ETF Sponsors take a portfolio of stocks
+   instead of cash, and they trade with APs instead of with
+   investors. ETF Sponsors and APs create ETF shares with the "create
+   process".
+
+   The "create process" involves the following steps:
+   1. The Authorized Participant buys stocks and bundles them in the
+      same proportions as defined by the ETF Sponsor
+   2. The AP gives these stocks to the ETF Sponsor
+   3. The ETF Sponsor creates ETF shares and gives these to the AP.
+   4. The AP sells the ETF shares to investors
+
+** 7: Redeeming Shares
+
+   When individual investors wish to divest their holdings in an ETF,
+   they can sell their shares to other investors on the stock
+   exchange, like they would with a stock. This is the same process
+   for investors of closed end mutual funds.
+
+   To exchange ETF shares for their underlying stocks, this requires
+   what's called the "redeem process", and is a transaction between
+   ETF Sponsor and APs. The redeem process takes ETF shares out of
+   circulation, and puts the underlying stocks back into the market.
+
+   The redeem process involves the following steps:
+   1. The AP buys ETF shares from investors in the stock market
+   2. The AP trades these ETF shares with the ETF Sponsor in exchange
+      for the original stocks
+   3. The AP sells these stocks on the stock exchange
+
+** 8: Lower Operational Costs & Taxes
+
+   ETF sponsors can charge more competitive (lower) fees in part
+   because their transactions can be more tax efficient. If you think
+   of how individual investors are taxed on their investments, selling
+   a stock at a higher price than when they bought it will be
+   considered a "realized" capital gain. Investors pay taxes on the
+   cash they earn from capital gains. For an ETF Sponsor, recall that
+   when it enters a create or redeem process, stocks and ETF shares
+   are being exchanged, and not cash. Also, the dollar value of these
+   assets being exchanged are more or less equal.
+
+   Let's look at a pretend example. Let's say an open-end mutual fund
+   is handling investor redemptions, and so the fund sells $10,000
+   worth of stocks to improve liquidity and handle the
+   redemptions. The fund originally bought those stocks at a value of
+   $9,000, and so realizes a capital gain of $1,000, which is taxed.
+
+   Let's also pretend that an ETF sponsor is entering a redeem process
+   with an AP, and gives $10,000 worth of stocks to the AP, in
+   exchange for $10,000 worth of ETF shares. There is no realized
+   capital gain, so there is no tax.
+
+** 9: Arbitrage
+
+   Arbitrage is the act of simultaneously buying and selling assets
+   that are interchangeable, in order to profit from pricing
+   differences. Arbitrage plays a role in making markets more
+   efficient, which means that prices are more consistent for the same
+   asset. When investors and funds collectively find and act on
+   arbitrage opportunities, they reduce price discrepancies in the
+   market.
+
+** 10: Arbitrage for Efficient ETF Pricing
+
+   The market value of an ETF share may diverge from the market value
+   of its underlying portfolio of stocks (its NAV).
+
+   If an ETF share price is higher than its NAV, we say it's trading
+   at a premium.
+
+   If an ETF share price is lower than its NAV, we say it's trading at
+   a discount.
+
+   The difference between the ETF share price and its NAV can be
+   called its "basis".
+
+   An Authorized Participant (AP) looks for when an ETF is trading at
+   a premium or discount to its NAV.
+
+   The AP then buys low and sells high in order to make a profit on
+   the difference. This trade also reduces the price discrepancy and
+   helps to keep ETF share prices in line with their NAV.
+
+   For example, if the ETF is trading at a premium the AP will enter a
+   create process with the ETF Sponsor. This means that the AP buys
+   the underlying stocks (at a relatively low price) and exchanges
+   them with the ETF Sponsor for ETF shares (which are priced at a
+   premium). Then the AP sells those ETF shares on the stock
+   exchange. The purchase of underlying stocks tends to push the stock
+   prices up. The creation of more ETF shares tends to push the ETF
+   share price downward.
+
+** 11: Summary
+
+   We've learned that ETFs charge lower fees. Moreover, ETFs are more
+   efficiently prices than closed-end funds due to arbitrage.
+
+* Lesson 18: Portfolio Risk and Return
+** 1: Intro
+
+   In this lesson we will research the risk and return properties on
+   portfolios. How do we distribute money to maximize returns and
+   minimize risks?
+
+** 2: Diversification
+
+   By adding assets that have a correlation less than one, we
+   diversify our portfolio and reduce our risk for every stock we
+   have. 
+
+   There are two kinds of risk:
+   1. Idiosyncratic risk: risk associated with one security
+   2. Systematic risk: risk associated with multiple securities
+
+** 3: Portfolio Mean
+
+   Given two stocks, $B$ and $A$, we can have weights $w_A$ and
+   $w_B$. The expected return for one asset is:
+
+   $$\text{E}[R]= \sum_{i=1}^{n}p(i)r(i)$$
+
+   $p(i)$ is the probability of scenario $i$.
+   $r(i)$ is the log return in scenario $i$. 
+
+   The total return of the portfolio is:
+   $$r_P(i) = x_A r_A(i) + x_B r_B(i)$$
+
+   The expected value of the portfolio return is:
+   $$\text{E}[r_P] = x_A E[r_A] + x_B \text{E}[r_B]$$
+
+** 4: Portfolio Variance
+
+   We measure risk through volatility, or variance:
+   $$\sigma^2(r) = \sum_{i=1}^{n}p(i)(r(i)-\text{E}[r])^2$$
+
+   The portfolio variance for two assets is:
+   $$\sigma^2_P = x^2_A \sigma^2_A + 2x_Ax_B\text{Cov}(r_A,r_B)$$
+
+   $$\text{Cov}(r_A,r_B) = \rho_{r_Ar_B}\sigma_A\sigma_B$$
+
+   If the correlation between the assets is 1:
+   $$\sigma^2_P = (x_A\sigma_A + x_B\sigma_B)^2$$
+
+   If the correlation is -1:
+   $$\sigma^2_P = (x_A\sigma_A - x_B\sigma_B)^2$$
+
+   We then can get a perfectly hedged portfolio by solving:
+   $$x_A\sigma_A - x_B\sigma_B = 0$$ 
+   $$x_A + x_B = 1$$
+
+   Then:
+   $$x_A = \frac{\sigma_B}{\sigma_A + \sigma_B}$$
+
+   $$x_B = 1 - x_A$$
+
+** 5: Reducing Risk
+
+   The variance of an imperfectly correlated portfolio will always be
+   lower than one of a perfectly correlated one. This is because the
+   covariance term will be smaller the less correlated that the assets
+   in the portfolio are.
+
+   The nice benefit of putting two stocks into a portfolio is that, as
+   long as they're not perfectly correlated, we'll end up with a
+   portfolio whose risk is less than the the weighted sum of the
+   individual risks. A key benefit of portfolio diversification is
+   that it helps us to reduce risk!
+   
+** 7: The Covariance Matrix and Quadratic Forms
+
+   Let's take a moment to learn a compact way to represent the
+   portfolio variance using matrices and vectors.
+
+   Remember that the portfolio variance we calculated for our
+   two-stock portfolio was:
+
+   $$\sigma^2_P = x^2_A \sigma^2_A + 2x_Ax_B\text{Cov}(r_A,r_B)$$
+
+   But
+   $$\sigma^2_A = \text{Cov}[r_A,r_A]$$
+
+   So:
+   $$\sigma^2_P = x^2_A\text{Cov}(r_A,r_A) + x^2_B\text{Cov}(r_B,r_B) + 2x_Ax_B\text{Cov}(r_A,r_B)$$
+
+   We can a covariance matrix out of this:
+
+   $$\textbf{P}=\begin{bmatrix}
+   \text{Cov}(r_A,r_A) & \text{Cov}(r_A,r_B) \\
+   \text{Cov}(r_B,r_A) & \text{Cov}(r_B,r_B)
+   \end{bmatrix}$$
+
+   and a set of vector weights:
+   $$\textbf{x}=
+   \begin{bmatrix}
+   x_A \\
+   x_B 
+   \end{bmatrix}$$
+   
+   And do the following matrix multiplication:
+   $$\textbf{x}^T\textbf{P}\textbf{x}$$
+
+   We get:
+   $$\sigma^2_P = x^2_A \sigma^2_A + 2x_Ax_B\text{Cov}(r_A,r_B)$$
+
+   Therefore:
+   $$\sigma^2_P=\textbf{x}^T\textbf{Px}$$
+
+   A polynomial where the sums of the exponents of the variables in
+   each term equals 2 is called a quadratic form.
+
+   The portfolio variance is an example of a quadratic form (remember,
+   $x_A$ and $x_B$ are the variables here). A quadratic can always be written as:
+   $$\textbf{x}^T\textbf{P}\textbf{x}$$
+
+   Where $\textbf{P}$ is a symmetric matrix.
+
+** 8: Calculate a Covariance Matrix
+   
+   We defined the covariance matrix as:
+   $$\textbf{P}=\begin{bmatrix}
+   \text{Cov}(r_A,r_A) & \text{Cov}(r_A,r_B) \\
+   \text{Cov}(r_B,r_A) & \text{Cov}(r_B,r_B)
+   \end{bmatrix}$$
+   
+   And covariance as:
+   $$\text{Cov}(r_A,r_B)=\text{E}[(r_A-\mu_A)(r_B-\mu_B)]$$
+
+   If $r_A$ and $r_B$ are discrete vectors of values, we can write the
+   covariance as:
+   $$\text{Cov}(r_A,r_B)=\frac{1}{n-1}\sum_{i=1}^{n}(r_{Ai}-\mu_A)(r_{Bi}-\mu_B)$$
+   
+   If $\mu_A = \mu_B = 0$, then:
+   $$\text{Cov}(r_A,r_B)=\frac{1}{n-1}\sum_{i=1}^{n}r_{Ai}r_{Bi}$$
+
+   Using matrix notation:
+   $$\text{Cov}(r_A,r_B)=\frac{1}{n-1}\sum_{i=1}^{n}\textbf{r}^T_A\textbf{r}_B$$
+
+   Therefore, if $\textbf{r}$ is a matrix that contains the vectors $\textbf{r}_A$ and $\textbf{r}_B$:
+   $$\textbf{r}^T\textbf{r} =
+   \begin{bmatrix}
+   \textbf{r}_A^T\textbf{r}_A & \textbf{r}_A^T\textbf{r}_B\\
+   \textbf{r}_B^T\textbf{r}_A & \textbf{r}_B^T\textbf{r}_B
+   \end{bmatrix}$$
+
+   So if each vector of observations in your data matrix has mean 0,
+   you can calculate the covariance matrix as:
+
+   $$ \frac{1}{n-1}\textbf{r}^T\textbf{r}$$
+
+** 10: The Efficient Frontier
+
+   If we randomly generate portfolio weights and graph the return vs
+   volatility:
+   #+caption: Efficient Frontier
+   [[file:img/cml.png]]
+
+   Any portfolios on the efficient frontier have the best risk
+   adjusted returns. They unachievable. Portfolios below the efficient
+   frontier are achievable but sub-optimal. Portfolios on the
+   efficient frontier are known as market portfolios.
+
+** 11: Capital Market Line
+
+   We can do better than the efficient frontier by mixing in a
+   risk-free asset. A risk-free asset gives a guaranteed rate of
+   return. This is called the risk-free rate. The return on a 3-month
+   US treasury note is often considered the risk-free rate.
+
+   #+caption: Capital Market Line
+   [[file:img/cml2.png]]
+
+   The slope of the CML is called the Sharpe ratio.
+
+** 12: The Sharpe Ratio
+
+   The Sharpe ratio is the ratio of reward to volatility. It's a
+   popular way to look at the performance of an asset relative to its
+   risk.
+
+   $$\text{Sharpe Ratio} = \frac{r_{\text{risky portfolio}}-r_{\text{risk free}}}{\sigma_{\text{excess return}}}$$
+
+   The numerator of the Sharpe ratio is called the excess return,
+   differential return as well as the risk premium. It's called
+   "excess return" because this is the return in excess of the
+   risk-free rate. It's also called the "risk premium", because this
+   represents the premium that investors should be rewarded with for
+   taking on risk.
+
+   The denominator is the volatility of the excess return.
+
+   How do you calculate this? The risk premium (which we'll denote
+   with $D$) equals the portfolio return minus risk free rate over a
+   period of time:
+
+   $$D_t=r_{\text{portfolio},t}-r_{\text{risk free},t}$$
+
+   $$\text{Sharpe Ratio} = \frac{D_{\text{average}}}{\sigma_D}$$
+
+   As we saw previously, the Sharpe Ratio is the slope of the Capital
+   Market Line.
+
+   The Sharpe Ratio allows us to compare stocks of different returns,
+   because the Sharpe ratio adjusts the returns by their level of
+   risk.
+
+   Please keep in mind that the Sharpe Ratio depends on the time
+   period over which it is measured, and it's normally annualized. You
+   annualize it in the same way you annualize volatility. For example:
+
+   $$\text{Sharpe Ratio}_{\text{year}}=\sqrt{252}\text{ Sharpe Ratio}_{\text{day}}$$
+
+   More information about the Sharpe ratio [[http://web.stanford.edu/~wfsharpe/art/sr/sr.htm][here]].
+
+** 13: Other Risk Measures
+
+   There are other ways to measure risk besides standard
+   deviation. Two other common risk measures are semi-deviation and
+   Value-at-Risk (written as VaR).
+
+   If you were given two stocks, one that continued to increase by 10%
+   every day, and one that decreased by 10% every day, would you
+   intuitively think that one stock was more risky than the other?
+   Standard deviation measures of risk would give these two stocks the
+   same level of risk, but you might think that investors are more
+   worried about down-side risk (when stocks decline), rather than
+   upside risk. The motivation for semi-deviation measure of risk is
+   to measure downside risk specifically, rather than any kind of
+   volatility.
+
+   Semi-deviation is calculated in a similar way as standard
+   deviation, except it only includes observations that are less than
+   the mean.
+
+   VaR, or value-at-risk is a portfolio risk measure. Risk managers at
+   investment firms and investment banks calculate VaR to estimate how
+   much money a portfolio manager's fund may potentially lose over a
+   certain time period. Corporations also estimate their own VaR to
+   decide how much cash they should hold to avoid bankruptcy during a
+   worst case scenario.
+
+   VaR is defined as the maximum dollar amount expected to be lost
+   over a given time horizon at a predefined confidence level. For
+   example, if the 95% one month VaR is $1 million, there is 95%
+   confidence that the portfolio will not lose more than $1 million
+   next month. Another way to describe the VaR is that there is a 5%
+   chance of losing $1 million or more next month. The methods for
+   calculating VaR are beyond the scope of this lesson, but if you
+   ever become a risk manager, or ever work with a risk manager,
+   you'll probably see Value-at-Risk quite a bit.
+
+   For a visual representation of VaR, we can look at a data
+   distribution that represents the rate of return of a stock. If we
+   color in the area in the left tail that represents 5% of the
+   distribution, the rate of return represented by that point on the
+   horizontal axis is the rate of return that may occur in the 5%
+   worst case scenario. To convert that to a VaR, we multiply that
+   rate of return by the amount of capital that is exposed to
+   risk. For a portfolio, it would be the amount of dollars invested
+   in that particular stock.
+
+   As an example, let's say we invested $10 million in a stock. We
+   estimate the mean and standard deviation of the stock's returns and
+   model it with a distribution function (it might be a normal
+   distribution, but there are other models). Then we find the rate of
+   return that defines 5% of the distribution to its left, in the left
+   tail. Let's say that rate of return is -20%. We multiply that rate
+   of return by the amount that we're exposed to.. So the VaR on any
+   given day is $2 million. In other words, we may plan some hedging
+   strategies or hold enough cash to help us handle the possibility of
+   losing $2 million on stock A on any given day. For more detail, and
+   an image of the distribution, check out Wikipedia's page on
+   [[https://en.wikipedia.org/wiki/Value_at_risk][Value-at_Risk]].
+
+** 14: The Capital Assets Pricing Model
+
+   In addition to the Capital Market Line, we will further introduce
+   another important concept: the Capital Asset Pricing Model which is
+   also called CAPM and pronounced "cap M".
+
+   The CAPM is a model that describes the relationship between
+   systematic risk and expected return for assets. The CAPM assumes
+   that the excess return of a stock is determined by the market
+   return and the stock's relationship with the market's movement. It
+   is the foundation of the more advanced multi-factor models used by
+   portfolio managers for portfolio construction.
+
+   Ok, let's quickly recap: the systematic risk, or market risk, is
+   undiversifiable risk that's inherent to the entire market. In
+   contrast, the idiosyncratic risk is the asset-specific risk.
+
+   Ok, let's take a look at CAPM. For a stock, the return of stock iii
+   equals the return of the risk free asset plus $\beta$ times the
+   difference between the market return and the risk free
+   return. $\beta$ equals the covariance of stock $i$ and the market
+   divided by the variance of the market.
+   
+   $$r_i-r_f=\beta(r_m-r_f)$$
+
+   $r_i$ is the stock return
+   $r_f$ is the risk free rate
+   $r_m$ is the market return
+   $$\beta_i = \frac{\text{Cov}(r_i,r_m)}{\sigma^2_m}$$
+
+   $\beta$ describes which direction and by how much a stock or portfolio
+   moves relative to the market. For example, if a stock has a $\beta$
+   of 1, this indicates that if the market's excess return is 5%, the
+   stock's excess return would also be 5%. If a stock has a $\beta$ of
+   1.1, this indicates that if the market's excess return is 5%, the
+   stock's excess return would be 1.1 times 5%, or 5.5%.
+
+   The Security Market Line is the graphical representation of CAPM
+   and it represents the relation between the risk and return of
+   stocks. Please note that it is different from the capital market
+   line. The y-axis is expected returns but the x-axis is beta. (You
+   may recall that for the capital market line that we learned
+   earlier, the x-axis was standard deviation of a portfolio.) As beta
+   increases, the level of risk increases. Hence, the investors demand
+   higher returns to compensate risk.
+
+   The Security Market Line is commonly used to evaluate if a stock
+   should be included in a portfolio. At time points when the stock is
+   above the security market line, it is considered “undervalued”
+   because the stock offers a greater return against its systematic
+   risk. In contrast, when the stock is below the line, it is
+   considered overvalued because the expected return does not overcome
+   the inherent risk.
+
+   The SML is also used to compare similar securities with
+   approximately similar returns or similar risks.
+* Lesson 19: Portfolio Optimization
+** Intro
+
+   In this lesson we will learn to optimize our portfolios to get the
+   best possible trade-offs between risk and return.
+
+** 2: What is Optimization?
+   
+   We are interested in the portfolios with the highest Sharpe
+   ratio. This is an optimization problem. Often times with
+   optimization we want to find the minimum of a function.
+
+   Example: How do we find minimum of:
+   $$y=(x-1)^2+1$$
+
+   By taking the derivative and setting the equation equal to 0 we can
+   find the minimum. 
+
+   Most optimizations problems do not have a closed-form solution like
+   this example, though.
+
+   In the previous problem, we cheated a little. We knew the shape of
+   the function, and we knew its orientation from our plot, so when we
+   found the point where the derivative equaled 0, we knew we had
+   found the minimum. However, in general, points where the derivative
+   equals 0 could be minima, maxima, or saddle points. To distinguish
+   between these cases, we need to check the function's curvature
+   around the point in question. We do this using the second
+   derivative of the function. For a function of one variable, the
+   rule is:
+   1. If the second derivative at the point is less than 0, the
+      function is a local maximum at the point.
+   2. If the second derivative at the point is greater than 0, then f
+      has a local minimum at the point.
+   3. If the second derivative at the point equals 0, the test is
+      inconclusive.
+
+   For a function of two variables, we must construct the Hessian
+   matrix. By using the determinant of the Hessian, we can find the
+   local maxima/minima.
+   
+** 3: Optimization with Constraints
+
+   Sometimes we want to find a minimum given some constraints. The
+   function we are trying to optimize is called the cost function, the
+   inputs we are trying to find are the portfolio weights. 
+
+   An optimal solution has the smallest objective value obeying all
+   the constraints.
+
+   Domain: The set of points for which the objective and all
+   constraint functions are defined.
+
+   Feasible Set: The set of points that satisfy all the constraints
+
+   A problem is feasible if there exists at least one point in the
+   feasible set.
+
+   Unbounded Below: An optimization problem wherein the objective
+   function reaches negative infinity for points in the feasible set.
+
+   If the optimization cost function is convex, we can easily solve
+   it. If we find a minima, we know it's a global minima and not a
+   local one.
+
+   When the objective is convex and the inequality constraints are
+   convex, and the equality constraints are:
+   $$f(\textbf{x}) = \textbf{a}^T\textbf{x} + b$$
+   
+** 4: Two-Asset Portfolio Optimization
+
+   So how do we set up the portfolio optimization problem? In general,
+   we know that we want high returns and low variance of returns, and
+   that the weights on each asset in our portfolio should sum to 1.
+
+   Let's again consider a portfolio a portfolio with 2 assets in it,
+   Stock A and Stock B. We want to solve for the weight on each asset,
+   $x_A$ and $x_B$.
+
+   Our objective function for this problem is the expression for the
+   portfolio variance for two variables which we will seek to
+   minimize:
+
+   $$\sigma^2_p=x^2_A\sigma^2_A + x^2_B\sigma^2_B+2x_Ax_B\sigma_A\sigma_B\rho_{r_Ar_B}$$
+
+   The only constraint is no leverage:
+   $$x_A + x_B = 1$$
+
+   We can solve the problem by taking the derivative to $x_A$. After
+   setting to zero and simplifying, we get:
+
+   $$x_A=\frac{\sigma^2_B-\sigma_A\sigma_B\rho_{r_Ar_B}}{\sigma^2_A+\sigma^2_B -
+   2\sigma_A\sigma_B\rho_{r_Ar_B}}$$
+
+   And we can find $x_B$ from the constraint.
+
+   Now we know the portfolio weights. You can see that they are only
+   dependent on the standard deviations of Stock A and B, and their
+   covariance. If we wanted to know the expected portfolio mean, we
+   only have to remember that it is the weighted sum of the individual
+   portfolio means:
+
+   $$\mu_p=\mu_Ax_A + \mu_Bx_B$$
+
+** 6: Formulating Portfolio Optimization Problems
+
+   So far, we've discussed one way to formulate a portfolio
+   optimization problem. We learned to set the portfolio variance as
+   the objective function, while imposing the constraint that the
+   portfolio weights should sum to 1. However, in practice you may
+   frame the problem a little differently. Let's talk about some of
+   the different ways to set up a portfolio optimization problem.
+
+   here are several common constraints that show up in these
+   problems. Earlier, we were allowing our portfolio weights to be
+   negative or positive, as long as they summed to 1. If a weight
+   turned out to be negative, we would consider the absolute value of
+   that number to be the size of the short position to take on that
+   asset. If your strategy does not allow you to take short positions,
+   your portfolio weights will all need to be positive numbers. In
+   order to enforce this in the optimization problem, you would add
+   the constraint that every $x_i$ in the $\mathbf{x}$ vector is
+   positive.
+
+   You may choose to impose constraints that would limit your
+   portfolio allocations in individual sectors, such as technology or
+   energy. You could do this by limiting the sum of weights for assets
+   in each sector.
+
+   If your optimization objective seeks to minimize portfolio
+   variance, you might also incorporate into the problem a goal for
+   the total portfolio return. You can do this by adding a constraint
+   on the portfolio return.
+
+   Constraint on portfolio return:
+   $$\mathbf{x}^T\geq r_{\text{min}}$$
+
+   Maximizing Portfolio Return:
+   We can also flip the problem around by maximizing returns instead
+   of minimizing variance. Instead of minimizing variance, it often
+   makes sense to impose a constraint on the variance in order to
+   manage risk. Then you could maximize mean returns, which is
+   equivalent to minimizing the negative mean returns. This makes
+   sense when your employer has told you, "I want the best return
+   possible, but you must limit your losses to $p$ percent!"
+
+   objective: minimize $$-\mathbf{x}^T$$
+   constraint: $\mathbf{x}^T\mathbf{P}x \geq p$
+
+   Maximizing Portfolio Return And Minimizing Portfolio Variance:
+   Indeed, you could also create an objective function that both
+   maximizes returns and minimizes variance, and controls the tradeoff
+   between the two goals with a parameter, $b$. In this case, you have
+   two terms in your objective function, one representing the
+   portfolio mean, and one representing the portfolio variance, and
+   the variance term is multiplied by $b$.
+   
+   How does one determine the parameter $b$? Well, it's very dependent
+   on the individual and the situation, and depends on the level of
+   risk aversion appropriate. It basically represents how much percent
+   return you are willing to give up for each unit of variance you
+   take on.
+
+   objective: minimize $-\mathbf{x}^T\mu+b\mathbf{x}^T\mathbf{Px}$
+   where $b$ is the trade-off parameter.
+
+   Math Note: There's another way to formulate an optimization
+   objective that relies on a new piece of notation, so I'll just take
+   a moment to explain that now. Say we just want to minimize the
+   difference between two quantities. Then we need a measure of the
+   difference, but generalized into many dimensions. For portfolio
+   optimization problems, each dimension is an asset in the
+   portfolio. When we want to measure the distance between two
+   vectors, we use something called the Euclidean norm or
+   L2-norm. This is just the square root of the squared differences of
+   each of the vectors' components. We write it with double bars and a
+   2 subscript.
+
+   Minimizing Distance to a Set of Target Weights:
+   Back to portfolio optimization! One way to formulate an
+   optimization problem is to use the L2 norm and minimize the
+   difference between your vector of portfolio weights and a set of
+   predefined target portfolio weights $\mathbf{x^*}$. The goal
+   would be to get the weights as close as possible to the set of
+   target weights while respecting a set of constraints. As an
+   example, these target weights might be values thought to be
+   proportional to future returns for each asset, in other words, an
+   alpha vector.Back to portfolio optimization! One way to formulate
+   an optimization problem is to use the L2 norm and minimize the
+   difference between your vector of portfolio weights and a set of
+   predefined target portfolio weights $\mathbf{x^*}$. The goal
+   would be to get the weights as close as possible to the set of
+   target weights while respecting a set of constraints. As an
+   example, these target weights might be values thought to be
+   proportional to future returns for each asset, in other words, an
+   alpha vector.
+
+   Objective: minimize $||\mathbf{x}-\mathbf{x^*}||_2$
+
+   Tracking an Index:
+   What if you want to minimize portfolio variance, but have the
+   portfolio track an index at the same time? In this case, you would
+   want terms in your objective function representing both portfolio
+   variance and the relationship between your portfolio weights and
+   the index weights, $\mathbf{q}$. There are a few ways to set this
+   up, but one intuitive way is to simply minimize the difference
+   between your portfolio weights and the weights on the assets in the
+   index, and minimize portfolio variance at the same time. The
+   tradeoff between these goals would be determined by a parameter,
+   $\lambda$.
+
+   $$\mathbf{x}^T\mathbf{Px} + \lambda||\mathbf{x}-\mathbf{q}||_2$$
+   Where $\mathbf{q}$ is a set of index weights.
+
+** 7: cvxpy
+
+   How to use cvxpy
+   1. Steps: Optimization problems involve finding
+      the values of a variable that minimize an objective function
+      under a set of constraints on the range of possible values the
+      variable can take. So we need to use cvxpy to declare the
+      variable, objective function and constraints, and then solve the
+      problem.
+   2. Optimization variable: Use cvx.Variable() to declare an
+      optimization variable. For portfolio optimization, this will be
+      $\mathbf{x}$, the vector of weights on the assets. Use the
+      argument to declare the size of the variable; e.g. x =
+      cvx.Variable(2) declares that $\mathbf{x}$ is a vector of
+      length 2. In general, variables can be scalars, vectors, or
+      matrices.
+   3. Objective functions: Use cvx.Minimize() to declare the objective
+      function. For example, if the objective function is $(x-y)^2$,
+      you would declare it to be: objective = cvx.Minimize((x -
+      y)**2).
+   4. Constraints: You must specify the problem constraints with a
+      list of expressions. For example, if the constraints are $x+y=1$
+      and $x-y\geq1$ you would create the list: constraints = [x + y
+      == 1, x - y >= 1]. Equality and inequality constraints are
+      elementwise, whether they involve scalars, vectors, or
+      matrices. For example, together the constraints 0 <= x and x <=
+      1 mean that every entry of $x$ is between 0 and 1. You cannot
+      construct inequalities with < and >. Strict inequalities don¡¯t
+      make sense in a real world setting. Also, you cannot chain
+      constraints together, e.g., 0 <= x <= 1 or x == y == 2.
+   5. Quadratic form: Use cvx.quad_form() to create a quadratic
+      form. For example, if you want to minimize portfolio variance,
+      and you have a covariance matrix $\mathbf{P}$ the quantity
+      cvx.quad_form(x, P) represents the quadratic form
+      $\mathbf{x}^T\mathbf{Px}$, the portfolio varaince.
+   6. Norm: Use cvx.norm() to create a norm term. For example, to
+      minimize the distance between two vectors: cvx.norm(x-b, 2).
+   7. Constants are the quantities in objective or constraint
+      expressions that are not Variables. You can use your numeric
+      library of choice to construct matrix and vector constants. For
+      instance, if x is a cvxpy Variable in the expression A*x + b, A
+      and b could be Numpy ndarrays, Numpy matrices, or SciPy sparse
+      matrices. A and b could even be different types.
+   8. Optimization problem: The core step in using cvxpy to solve an
+      optimization problem is to specify the problem. Remember that an
+      optimization problem involves minimizing an objective function,
+      under some constraints, so to specify the problem, you need both
+      of these. Use cvx.Problem() to declare the optimization
+      problem. For example, problem = cvx.Problem(objective,
+      constraints), where objective and constraints are quantities
+      you've defined earlier. Problems are immutable. This means that
+      you cannot modify a problem¡¯s objective or constraints after you
+      have created it. If you find yourself wanting to add a
+      constraint to an existing problem, you should instead create a
+      new problem.
+
+   Solve: Use problem.solve() to run the optimization solver.
+
+   Status: Use problem.status to access the status of the problem and
+   check whether it has been determined to be unfeasible or unbounded.
+
+   Results: Use problem.value to access the optimal value of the
+   objective function. Use e.g. x.value to access the optimal value of
+   the optimization variable.
+
+** 8: cvxpy Exercise
+   
+   [[file:udacity-part1/m3l4_cvxpy_basic.html][Cvxpy Exercise]]
+
+** 9: cvxpy Advanced Optimization
+
+   [[file:udacity-part1/m3l4_cvxpy_advanced.html][Cvxpy Advanced Optimization]]
+
+** 10: Rebalancing a Portfolio
+
+   The next step after portfolio construction is monitoring and
+   rebalancing. Because the value of assets change, we need to adjust
+   the weights, this is called rebalancing.
+
+   We can rebalance by simply re-running the original optimization
+   function, but using new data.
+
+   Rebalancing costs:
+   1. Transaction costs
+   2. Taxes
+   3. Time and labor
+
+   Portfolio rebalancing can be very expensive:
+   A fund manager with 2000 securities, 40 portfolio managers, 500
+   million shares, $17.5 billion in AUM incurred a transaction cost of
+   $120 million when rebalancing.
+
+   It's hard to model transaction costs directly, so estimate
+   transaction costs by calculating the turnover.
+
+   $$\text{turnover}=\sum_{i=1}^n |x_{t_1,n}-x_{t_2,n}|$$
+
+   $$\text{annualized turnover}=\frac{\text{sum total turnover}}{num
+   total rebalancing events} \times \text{num rebalancing events per
+   year}$$
+
+** 11: Rebalancing Strategies 
+
+   How do we know when to rebalance a portfolio? There two main events
+   that should trigger a rebalancing of the model:
+   1. Cash flows: movements of money into and out of a portfolio
+      + Dividends
+      + Capital gains
+      + New contributions
+      + Redemptions
+   2. Changes in model parameters
+
+   One simple rebalance strategy is to just rebalance at specific
+   preset intervals. 
+
+** 12: Limitations of the Classical Approach
+
+   Limitations:
+   1. Estimating portfolio mean
+   2. Estimating portfolio variance
+      + variance will not tell you anything about kurtosis
+      + Variance may not capture risk
+      + Large matrix: calculating covariance directly from stocks
+        leads to $n^2$ complexity
+      + Need for long time series so we can estimate a reliable
+        covariance matrix
+   3. Any estimate is noisy
+   4. Single period: we could rebalance into an adverse condition, a
+      solution to this is called multi-period optimization.
+   5. Transaction costs
+
+   To address some of these weaknesses, we can use factor based models
+   instead.
+
+   Information about multi-period optimization [[http://stanford.edu/~boyd/papers/pdf/cvx_portfolio.pdf][here]].
+
+* Lesson 20: Project 3: Smart Beta and Portfolio Optimization
+
+  [[file:udacity-part1/project_3_starter.html][Smart Beta and Portfolio Optimization]]
+
+* Lesson 21: Factors
+** 1: Intro to the Module
+
+   We learn how the drivers of mean return and volatility. 
+
+** 2: Intro to the Lesson
+
+   We will learn how to develop models of return and risk and include
+   these into our optimization framework. We aren't going to
+   explicitly model returns: it is often too noisy. Instead:
+   1. Alpha factors: drivers of mean returns
+   2. Risk factors: drivers of volatility
+
+   For example factors could be based on:
+   1. Momentum
+   2. Fundamental information
+   3. Signals from social media
+
+   Factor: A list of numerical values, one for each stock, potentially
+   predictive of an apsect of the performance of these stocks in the
+   future. In essence factors are signals that describe where to place
+   capital in stocks and how much capital to invest in each stock.
+
+** 3: Example of a Factor
+
+   We will look at a momentum factor in this example. 
+   
+   Hypothesis: one-year return indicates omentum for the next few
+   days.
+
+   Our factor: one-year return of each stock in the universe.
+
+   How do we use this factor? We shouldn't use it to predict the price
+   value. Instead we should use it to compare with other stocks. We
+   then try and long stocks with more exposure to our factor, and
+   short stocks with low exposure to our factor.
+
+** 5: Standardizing a Factor
+
+   #+caption: Standardized Factor
+   [[file:img/std.png]]
+
+** 6: De-mean Part 1
+
+   We demean the factor so we create a dollar neutral portfolio. By
+   having our weights equal zero, we will not have any market
+   exposure.
+
+   A dollar neutral portfolio is usually market neutral.
+
+   A notational or trade book value is the dollar amount aossciated
+   with a portfolio.
+   
+   A portfolio's notional is the number we can multiply the stock
+   weights by in order to get a dollar value for each stock's
+   position. For a long-only portfolio, we can think of this as the
+   amount of cash that a fund has available to invest in the
+   portfolio. Whether the positions are long or short, we can multiply
+   the stock weight to the notional to turn this into a dollar amount
+   for that stock's position.
+
+   #+caption: De-mean
+   [[file:img/demean.png]]
+
+** 7: De-mean Part 2
+
+   #+caption: De-mean
+   [[file:img/dlr.png]]
+
+** 8: Rescale Part 1 
+
+   We rescale the weights so our leverage ratio equals one. The goal
+   of using leverage is to magnify the returns. We can create leverage
+   by either borrowing at the risk-free rate of shorting stock.
+
+   #+caption: Leverage
+   [[file:img/lev.png]]
+
+** 9: Rescale Part 2
+
+   Leverage seems great because we could use all of our short positons
+   to buy of all our long positions.
+
+   The leverage ratio is the sum of the magnitudes of all positions,
+   divided by the notional. The leverage ratio gives a sense of how
+   much risk a portfolio is taking, because taking more positions
+   magnifies both gains and losses. To standardize a factor, we divide
+   by the sum of the magnitudes (sum of the absolute value of the
+   positions), so that this rescaled vector's sum of magnitudes is
+   equal to one. This makes different factors more comparable, because
+   it's as if you're comparing different portfolios but each with the
+   same amount of money placed on their positions.
+
+   #+caption: Leverage Ratio
+   [[file:img/lev2.png]]
+
+** 10: Overview for Standardizing a Factor
+
+   #+caption: Standardizing a Factor
+   [[file:img/std2.png]]
+
+** 12: Zipline Coding Exercise
+
+   [[file:udacity-part1/ZiplinePipeline.html][Zipline Exercise]]
+
+** 13: Advanced Zipline Exercise
+
+   [[file:udacity-part1/zipline_coding_exercises_solution.html][Advanced Zipline Exercise]]
+
+* Lesson 22: Factor Models and Types of Factors
+** 1: Intro to Lesson
+
+   In this lesson we will introduce to the factor model and talk about
+   some common factors.
+
+** 2: What is a Factor Model?
+
+   What is the formalism for factors? A factor model is a statistical
+   model that describes the movement in some underlying variables by a
+   smaller number of variables. Factors are the latent variables that
+   under pin the movement of some random variables.
+
+   What if we can explain the common variability in a large number of
+   securities through factors?
+
+   Linear factor model
+   $$r_i= b_{i1}f_1+b_{i2}f_2+\cdots+b_{iK}f_K + s_i$$
+   
+   Where:
+   $r_i$ is the return on asset $i$
+   $f_1$ the value of factor return 1
+   $b_{i1}$ the change in the return on asset $i$ per unit change in
+   factor return 1
+   $K$ is the number of factors
+   $s_i$ the portion of the return on asset $i$ not related to the $K$
+   factors
+
+   The return of any stock can be decomposed as returns of factors
+   multiplied by the exposure of the stock to those factors plus the
+   idiosyncratic return not explained by any of the factors.
+
+** 3: Factor Returns as Latent Variables
+
+   What is the difference between factors and multiple regression? 
+
+   How do we create a single time-series that represents a factor?
+   Factors are latent variables so it is difficult to directly measure
+   and construct.
+
+   The way we make a factor is to create a long-short dollar neutral
+   portfolio in which the longs are exposed to the factor, and the
+   shorts are negatively exposed to the factor.
+
+** 4: Terminology
+
+   The terminology used to describe factor models varies widely. Here
+   are some common phrases used to refer to the components of the
+   model.
+
+   Factor returns (the $f_k$) may be:   
+   1. Macro-economic variables
+   2. Returns on pre-specified portfolios
+   3. Returns on zero-investment strategies (long and short positions
+      of equal value) giving maximum exposure to fundamental or
+      macro-economic factors
+   4. Returns on benchmark portfolios representing asset classes
+   5. Something else
+
+   The $b_{ij}$ coefficients may be called:
+   1. factor exposures
+   2. factor sensitivities
+   3. factor loadings
+   4. factor betas
+   5. asset exposures
+   6. style
+   7. or something else
+
+   The $s_i$ term may be called:
+   1. Idiosyncratic return
+   2. Security-specific return
+   3. Non-factor return
+   4. Residual return
+   5. Selection return
+   6. or something else
+
+** 5: Factor Model Assumptions
+
+   Factor model assumptions:
+   1. $\text{Corr}(s_i,f_k) = 0$ for every $i$ and $k$
+      + No correlation between the residual return and the factor
+        returns
+   2. $\text{Corr}(s_i,s_j) = 0$ for every $i$ not equal to $j$
+      + No correlation between the different residual returns.
+
+** 6: Covariance Matrix Using a Factor Model
+
+   How do we use the factor model to calculate the covariance matrix
+   of returns? 
+
+   #+caption: Factor Model
+   [[file:img/fac.png]]
+
+   #+caption: Factor Model
+   [[file:img/fac2.png]]
+
+   #+caption: Factor Model
+   [[file:img/fac3.png]]
+
+   Covariance matrix of returns:
+   $$\text{E}(\mathbf{rr}^T)=\mathbf{BFB}^T + \mathbf{S}$$
+
+** 7: Factor Models in Quant Finance
+   
+   How are factor models used in practice? Most people don't use
+   factor models to explicitly model return time-series.
+
+   #+caption: Factor Model
+   [[file:img/fac4.png]]
+
+   What if there are two kinds of factors? One group that is
+   predictive of the mean return, the other the variance? The first
+   describes our alpha factors, the second our risk factors. We would
+   prefer that we reduce our exposure to risk factors and maximize our
+   exposure to alpha factors.
+   
+   #+caption: Risk vs Alpha Factors
+   [[file:img/riskfac.png]]
+
+   #+caption: Risk Factors
+   [[file:img/riskfac2.png]]
+
+   $\mathbf{F}$, $\mathbf{B}$, and $\mathbf{S}$ say nothing explicit about alpha. 
+
+   Often times practitioners buy these from a commercial
+   provider. What do we do with the remaining alpha factors?
+
+   #+caption: Alpha Factors
+   [[file:img/alpha.png]]
+
+** 8: Risk Factors vs. Alpha Factors
+
+   In general, risk factors are significant contributors to the
+   variance of asset returns, and less predictive of the mean of
+   returns. Risk factors are identified to control risk. One way to do
+   control an asset's exposure to a risk factor is to hold an equal
+   amount long as short. For instance, a dollar neutral portfolio with
+   equal amounts long and short is controlling for risks that the
+   overall market may move up or down.
+
+   In general, factors that are significant in describing the mean of
+   asset returns can be candidates for alpha factors. Alpha factors
+   are used to give some indication of whether each stock in the
+   portfolio may have positive expected returns or negative expected
+   returns. For example, a former alpha factor was the market
+   capitalization of a stock. Small cap stocks tend to have higher
+   future returns compared to large cap stocks.
+
+** 9: Risk Factors v. Alpha Factors Part 2
+
+   Usually, we'd choose 20 to 60 risk factors that describe overall
+   stock variance as much as possible. So risk factors as a whole
+   account for more of the overall movement of stocks.
+
+   On the other hand, alpha factors contribute to smaller movements of
+   stocks, which is okay, because we seek to identify these alpha
+   factors because they give some indication of the direction of
+   expected returns, even if they're small compared to risk factors.
+
+   An important reason why it's important to identify risk factors and
+   then neutralize a portfolio's exposure to risk factors is that if
+   we didn't, the asset movements due to risk factors would overwhelm
+   the movements that are due to the alpha factors.
+
+** 10: Risk Factors v. Alpha Factors Part 3
+
+   Risk factors are well-known by the investment community, so
+   investors will track those factors when optimizing their
+   portfolios. This also means that it's unlikely that any one
+   investor can gain a competitive advantage (higher than normal
+   returns) using risk factors.
+
+** 11: Risk Factors v. Alpha Factors Part 4
+
+   Alpha factors are less well-known by the investment community,
+   because they're generated by in-house research to help the fund
+   generate higher than normal returns. So alpha factors are said to
+   be drivers of the mean of returns because they're used to help push
+   a portfolio's overall returns higher than what would be expected
+   from a passive buy and hold strategy.
+
+** 12: How an Alpha Factor Becomes a Risk Factor Part 1
+
+   For example, if I have an app that tells me the fastest way to a
+   destination, I could use it to arrive faster than everyone
+   else. But when everyone else starts using the app, I no longer will
+   arrive faster. This illustrates the transition of an alpha factor
+   to a risk factor.
+
+** 13: How an Alpha Factor Becomes a Risk Factor Part 2
+
+   An alpha factor that is generated by internal research in a fund
+   can help that fund seek a competitive advantage in the market. If
+   the proprietary factor isn't yet discovered by the rest of the
+   investment community, most others won't act on that signal when
+   making investment and trading decisions.
+
+   Alpha factors usually lose their effectiveness over time. One
+   possible reason is that as other funds also discover the factor,
+   and make investment decisions based on its signal, then the
+   above-average gains or arbitrage opportunities get diffused as
+   they're shared by a growing number of market
+   participants. Eventually, if a factor becomes very well known and
+   most investors are acting on its signal, then the factor can be
+   considered more of a risk factor.
+
+   Among quants, you may hear the joke that "your alpha factor is my
+   risk factor," since it's up to each fund to decide whether to use a
+   factor to control risk or to drive returns.
+
+** 14: Momentum or Reversal
+
+   A momentum factor indicators that a trend will continue.
+   #+caption: Momentum Factor
+   [[file:img/mom.png]]
+
+   A reversal factor indicators that a trend will change.
+   #+caption: Reversal factor
+   [[file:img/rev.png]]
+
+   For these example, the momentum factor could be the annual return
+   and the reversal could be the /negative/ weekly return.
+
+** 15: Price-Volume Factors
+
+   Price-Volume factors can be anything that relates to the price or
+   volume of a security. Examples are:
+   1. Unadjusted or adjusted prices
+   2. Open, high, low, close
+   3. Different frequencies
+   4. Bid ask quotes
+
+   The constant availability of price-volume indicators for many
+   securities makes them very attractive as factors.
+
+** 16: Volume Factors
+
+   Volume factors usually use price information to categorize volume
+   as "net buy" or "net sell."
+
+   Volume:
+   1. Low volume: price movement signals may not be as significant
+   2. High volume: price movement may be more significant
+
+** 17: Fundamentals
+
+   Factors that use financial statements are called fundamentals. They
+   are the most commonly used factors for quant trading:
+   1. Updated every 3 months
+   2. Higher capacity
+   3. Lower turnover
+   
+** 18: Fundamental Ratios
+
+   Examples:
+   1. P/E
+   2. P/B
+   3. Cash flows
+   4. Earnings
+
+** 19: Event-Driven Factors
+
+   Event-driven factors are based on events that due not occur on any
+   regular intervals. Examples are news events, index adds/deletes,
+   and M&A.
+
+** 20: Index Changes
+
+   Because funds that track indices aim to match the index, we can use
+   the index changes as an potential alpha factor. 
+
+   An index add can be used as a buy signal, while an index delete a
+   sell signal.
+
+** 21: Pre and Post Event
+
+   We can arbitrage between the rumor and the news if we expect the
+   probabilities are out of line.
+   
+** 22: Analyst Ratings
+
+   We can use analyst ratings and supports as a basis for alpha
+   factors. Investment banks choose their own scale, so it's important
+   to try and normalize the ratings.
+
+** 23: Alternative Data
+
+   Over the history of finance, we have constantly tried to find new
+   sources of information. Any data that is not included in
+   price-volume or analyst reports are called alternative data.
+
+** 24: Sentiment Analysis on News and Social Media
+
+   We could use sentiment analysis on news to generate an alpha factor.
+
+** 25: NLP Used to Enhance Fundamental Analysis
+
+   We can use NLP to supplement fundamental research such as 10-Ks,
+   13Fs, etc.
+
+* Lesson 23: Risk Factor Models
+** 1: Intro
+   In this lesson we will focus on risk factors and the fundamentals
+   of the risk factor model. The goal of the risk factor model is to
+   neutralize risk exposures. We do this by:
+   1. Modeling portfolio risk in terms of risk factors
+   2. Model asset variance and covariance in terms of risk factors
+
+   In order to this we need a couple different types of information:
+   1. Variance, covariance of risk factors
+   2. Factor exposures
+   3. Specific variance of assets
+   4. Factor returns
+   5. Asset returns
+
+   #+caption: Risk Model Process
+   [[file:img/rout.png]]
+
+** 3: Motivation for Risk Factor Models
+
+   We want to use a risk factor model instead of modeling the
+   covariance between securities directly because such an approach is
+   far too computationally difficult.
+   
+   #+caption: Covariance Matrix for Two Stocks
+   [[file:img/vol.png]]
+
+   #+caption: Covariance Matrix of Assets
+   [[file:img/co.png]]
+
+** 4: Historical Variance Exercise
+
+   [[file:udacity-part1/historical_variance_solution.html][Historical Variance Exercise]]
+
+** 5: Factor Model of Asset Return
+
+   #+caption: Factor Model of Return for a Single Factor
+   [[file:img/facn.png]]
+
+** 6: Factor Model of Asset Return Exercise
+
+   [[file:udacity-part1/factor_model_asset_return_solution.html][Factor Model of ASset Return Exercise]]
+
+** 7: Factor Model of Portfolio Return
+
+   #+caption: Factor Exposure of Portfolio
+   [[file:img/ex.png]]
+
+   #+caption: Contribution of Factor to Portfolio Return
+   [[file:img/con.png]]
+
+** 8: Preview of Portfolio Variance Formula
+
+   #+caption: Factor Model of Portfolio Variance
+   [[file:img/vmod.png]]
+
+** 9: Factor Model of Portfolio Return Exercise
+
+   [[file:udacity-part1/factor_model_portfolio_return_solution.html][Factor Model of Portfolio Return Exercise]]
+
+** 10: Variance of One Stock
+
+   #+caption: Variance of a Single Stock
+   [[file:img/vr.png]]
+
+** 12: Variance of 2 Stocks Part 1
+
+   The covariance of two stocks can be written as the sum of the
+   covariances of the factors. In this example we have two factors, so
+   we have four covariance terms. If we were using three factors to
+   describe the asset returns, there would be three times three or
+   nine covariance terms.
+
+** 13: Variance of 2 Stocks Part 2
+
+   #+caption: Building Blocks for the Covariance Matrix of Assets
+   [[file:img/bld.png]]
+
+** 14: Covariance Matrix of Assets Exercise
+
+   [[file:udacity-part1/covariance_matrix_assets_solution.html][Covariance Matrix of Assets Exercise]]
+
+** 15: Portfolio Variance using Factor Model
+
+   $$\text{Var}(r_p) = \mathbf{X}^T(\mathbf{BFB}^T + \mathbf{S})\mathbf{X}$$
+
+   For two stocks and 2 factors:
+   $$\mathbf{F} =  \begin{bmatrix}
+   \text{Var}(f_1) & \text{Cov}(f_1,f_2)\\
+   \text{Cov}(f_2,f_1) & \text{Var}(f_2)
+   \end{bmatrix}
+   $$
+
+
+   $$\mathbf{B} = \begin{bmatrix}
+   \beta_{i,1} & \beta_{i,2} \\
+   \beta_{j,1} & \beta_{j,2} 
+   \end{bmatrix}$$
+   
+   $$\mathbf{S}= \begin{bmatrix}
+   \text{Var}(s_i) & 0 \\
+   0 & \text{Var}(s_j)
+   \end{bmatrix}$$
+
+   $$\mathbf{X} = \begin{bmatrix}
+   x_i \\
+   x_j \\
+   \end{bmatrix}$$
+   
+   If the mean is 0 for all the factor returns or specific returns, we
+   can write:
+   $$\mathbf{F} = \frac{1}{N-1}\mathbf{ff}^T$$
+
+   $$\mathbf{S} = \frac{1}{N-1}\mathbf{ss}^T$$
+
+
+** 16: Portfolio Variance Exercise
+
+   [[file:udacity-part1/portfolio_variance_solution.html][Portfolio Variance Exercise]]
+
+** 17: Types of Risk Models
+
+      Types of risk models:
+   1. Time Series Risk Models
+      - Capital Asset Pricing Model (CAPM)
+      - Fama French 3 Factor Model 
+   2. Cross Sectional Risk Models
+   3. PCA Risk Models
+      - Unsupervised ML model
+
+* Lesson 24: Time Series and Cross Sectional Risk Models
+** 1: Time Series Model: Factor Variance
+   
+   We need to find $\mathbf{B}$, $\mathbf{F}$, and $\mathbf{S}$ to
+   input into our factor single market factor model for 2 stocks.
+
+
+   We can calculate $\mathbf{F}$ from the variance of the excess
+   market return:
+   $$f_m = r_m - r_f$$
+   $$\mathbf{F}=\begin{bmatrix}
+   \text{Var}(f_m) \\
+   \end{bmatrix}$$
+
+   #+caption: Single Market Factor
+   [[file:img/sf.png]]
+
+** 2: Time Series Model: Factor Exposure
+   
+   Now we need to fill in the values for beta:
+   $$\mathbf{B}=\begin{bmatrix}
+   \beta_{i,1} \\
+   \beta_{j,1} 
+   \end{bmatrix}$$
+   
+   We can use regression to calculate the factor exposures in a time
+   series model. We'll use the asset's excess return as the dependent
+   "y" variable, and the factor return (in this case, market excess
+   return) as the independent "x" variable. The estimated coefficient
+   from the regression is an estimate of the asset's "exposure" to
+   that factor.
+
+   #+caption: CAPM Beta Regression
+   [[file:img/cpm.png]]
+
+** 3: Time Series Model: Specific Variance
+
+   
+   Now we need to find $\mathbf{S}$:
+   $$\mathbf{S}= \begin{bmatrix}
+   \text{Var}(s_i) & 0 \\
+   0 & \text{Var}(s_j)
+   \end{bmatrix}$$
+
+   We can find it through finding the difference between the actual
+   return and the estimated return:
+
+   $$s_n = (r_n - r_f) - (\beta_n f_m + c_i)$$
+
+   #+caption: CAPM Specific Return
+   [[file:img/cpm2.png]]
+
+** 4: Time Series Model
+
+   $(\mathbf{BFB}^T + S)$ of $$\text{Var}(r_p) =
+   \mathbf{X}^T(\mathbf{BFB}^T + \mathbf{S})\mathbf{X}$$ is the plug
+   and play component of any factor model. We can insert it into our
+   portfolio of weights.
+
+** 5-6: Size (SMB)
+
+   We can build upon the CAPM model by adding an additional two
+   factors. This is called the Fama-French 3 Factor Model. The first
+   additional factor is size.
+
+   Size: High-minus-Low (SMB)
+      - Small cap companies have higher risk-adjusted returns than
+        large cap. We can get the factor time series by shorting big
+        companies and longing small companies.
+
+   To create a theoretical portfolio representing size, we could go
+   long the bottom 10th percentile of stocks by market cap (long small
+   cap stocks) and go short stocks above the 90th percentile (go short
+   the large cap stocks). We could assume an equal dollar amount
+   invested in each stock. In the above example, we are dividing by 2
+   to take the average return of going long small cap stocks and going
+   short large cap stocks.
+
+   It's also common to compute the spread between two portfolios. One
+   portfolio contains the small cap stocks, and the other portfolio
+   contains the large cap stocks. In this case, we'd just take the
+   difference between the returns of the two portfolios.
+
+   #+caption: SML
+   [[file:img/sml.png]]
+
+** 7: Value (HML)
+
+   Value: High-minus-Low (HML)
+      - Cheap companies have a higher risk-adjusted return than
+        expensive companies. We can get the factor time series by
+        shorting expensive companies and longing cheap companies.
+   
+   Stocks above the 70th percentile of book-to-market are placed into
+   the high bucket, while those in the 30th percentile or below on
+   book-to-market are placed into the low bucket.
+
+   #+caption: HML
+   [[file:img/hml.png]]
+
+** 8: Fama French SMB and HML
+
+   $$\text{SMB} = \frac{1}{3}[(r_{s,v} + r_{s,n} + r_{s,g}) - (r_{b,v} + r_{b,n} + r_{b,g})]$$
+
+   $$\text{HML}= \frac{1}{2}[(r_{s,v} + r_{b,v}) - (r_{s,g} + r_{b,g})]$$
+
+   #+caption: Fama French 3 Factor Model
+   [[file:img/3f.png]]
+
+** 9: Fama French Risk Model
+   How can we use this factor model for two stocks?
+
+   $$\text{Var}(r_p) = \mathbf{X}^T(\mathbf{BFB}^T + \mathbf{S})\mathbf{X}$$
+
+   $$\mathbf{F} = \begin{bmatrix}
+   \text{Var}(f_m) & \text{Cov}(f_m,f_s) & \text{Cov}(f_m,f_v) \\
+   \text{Cov}(f_s,f_m) & \text{Var}(f_s) & \text{Cov}(f_s,f_v) \\
+   \text{Cov}(f_v,m) & \text{Cov}(f_v,f_s) & \text{Var}(f_v) 
+   \end{bmatrix}$$
+
+   $$f_m = r_m - r_f $$
+
+   $$f_s = \frac{1}{3}[(r_{s,v} + r_{s,n} + r_{s,g}) - (r_{b,v} + r_{b,n} + r_{b,g})]$$
+
+   $$f_v= \frac{1}{2}[(r_{s,v} + r_{b,v}) - (r_{s,g} + r_{b,g})]$$
+
+   $$\mathbf{B} = \begin{bmatrix}
+   \beta_{i,m} & \beta_{i,s} & \beta_{i,v} \\
+   \beta_{j,m} & \beta_{j,s} & \beta_{j,v}
+   \end{bmatrix}$$
+
+   We can then use a multiple regression to find the betas for each
+   stocks:
+   $$r_{i,estimated} = \beta_{i,m} \times f_m + \beta_{i,s} \times f_s + \beta_{i,v} \times f_v$$
+
+   $$r_{j,estimated} = \beta_{j,m} \times f_m + \beta_{j,s} \times f_s + \beta_{j,v} \times f_v$$
+
+   Now we can calculate $S$:
+   $$S = \begin{bmatrix}
+   \text{Var}(s_i) & 0 \\
+   0 & \text{Var}(s_j)
+   \end{bmatrix}$$
+
+   $$s_i = r_{i,actual} - r_{i,estimated}$$
+   
+   $$s_j = r_{j,actual} - r_{j,estimated}$$
+
+** 10: Cross Sectional Model
+
+   A cross-section means that we use multiple stocks for a single time
+   period in a calculation. In contrast, a time series is looking at a
+   single stock over multiple time periods.
+
+   A cross-sectional model calculates the factor exposure first, and
+   then uses that information to estimate the factor return.
+
+   #+caption: Cross Sectional vs Time Series
+   [[file:img/csm.png]]
+
+** 12: Categorical Factors
+
+   We can use one hot encoding to represent categorical factors.
+
+   #+caption: One Hot Encoding
+   [[file:img/oh.png]]
+
+   When handling categorical variables, we can make each unique value
+   within a category be its own variable. In this example, the country
+   variable becomes "country_usa", "country_india", "country_brazil"
+   etc. Then assign a value to each of these variables to represent
+   how "exposed" the company is to each country.
+   
+** 13: Categorical Variable Estimation
+
+   #+caption: Cross Sectional Risk Model
+   [[file:img/c.png]]
+
+   If we collect a cross-section of multiple stocks for a single time
+   period, then we'll have pairs of stock returns and factor
+   exposures. We can use regression to estimate the factor return for
+   that single time period. Then repeat over multiple time periods to
+   get a time series of factor returns.
+
+   We plot multiple stocks by their returns and their beta exposure
+   and do a regression. The slope of the fit line is then the factor
+   return for that day.
+
+   #+caption: Cross Sectional Factor Returns
+   [[file:img/cm.png]]
+
+** 14: Cross Section: Specific Variance
+
+   Like before, we get the specific variance by obtaining the specific
+   return through taking the difference between the actual return and
+   the estimated return.
+
+   #+caption: Specific Return
+   [[file:img/sp.png]]
+
+** 15: Fundamental Factors
+
+   In a cross-sectional risk model, the fundamental data calculated on
+   a company, based on its financials, can be used as the factor
+   exposure of that company, to that factor. We can use regression on
+   a cross-section of stocks to estimate the factor return.
+
+   We need a couple pieces of information in order to fill out a
+   cross-sectional risk model from fundamentals data:
+   1. Factor exposures
+      - We can directly use the demeaned fundamentals information as our factor
+        exposures
+   2. Stock returns
+   3. Factor returns for one time period
+      - We can perform a multiple regression in order to obtain our factor returns.
+   4. Repeat to get factor time series
+      - We might just use a subset of stocks for these
+        calculations. This is called our estimation universe.
+   5. Variance and covariance of these factor time series
+   6. The specific returns
+
+** 16: Summary
+
+   Most commercial risk models use a cross sectional approach or PCA
+   instead of time series analysis.
+
+* Lesson 25: Risk Factor Models with PCA
+** 1: Statistical Risk Model
+   
+   Instead of creating risk factors ourselves, we can use machine
+   learning to generate these factors through PCA.
+
+** 4: Bases as Languages
+
+   A set of vectors is a "basis" for the space if:
+   1. No vector in the set is a linear combination of the others
+   2. Every vector in the space can be written as a linear combination
+      of the set of vectors
+
+** 5: Translating Between Bases
+
+   The matrices to translate from the old basis to the new basis and
+   from the new basis to the old basis should be the inverse of each
+   other. This makes sense because a matrix multiplied by its inverse
+   is the identity matrix.
+
+   #+caption: Base Transformations
+   [[file:img/lin.png]]
+
+** 6: The Core Idea
+
+   With PCA we try and minimize the perpendicular distance between the
+   point and the line, this is how we find the first principle
+   component. We then draw new lines with each line being
+   perpendicular or orthogonal to each other.
+
+   #+caption: PCA
+   [[file:img/bas.png]]
+
+** 7: PCA Exercise
+
+   [[file:udacity-part1/PCA_Core.html][PCA Exercise]]
+
+** 8: Writing it Down Part 1
+
+   Before we do the PCA, we want to center all the points around zero
+   by subtracting the mean from each dimension. This is called mean
+   centering or mean normalization.
+
+** 9: Writing it Down Part 2
+
+   We want to try and maximize the variance of:
+
+   $$\frac{\mathbf{x}_i \cdot \mathbf{w}}{w}$$
+
+   #+caption: PCA
+   [[file:img/dot.png]]
+
+** 10: Writing it Down Part 3
+
+   #+caption: PCA
+   [[file:img/pca.png]]
+
+   #+caption: PCA
+   [[file:img/pca2.png]]
+
+** 11: Writing it Down Part 4
+
+   We choose $\mathbf{w}$ to try and maximize the variance. We then
+   subtract $\mathbf{w}$, the first component, from the original
+   data. This allows us to find the second principle component. We
+   keep doing this until we have a component for each dimension.
+
+   #+caption: PCA
+   [[file:img/pca3.png]]
+
+** 12: The Principal Components
+
+   These components from PCA may or may not be interpretable: they may
+   or may not mean anything in the real world.
+
+** 13: Explained Variance
+
+   We often don't use all the components from PCA. This allows us to
+   reduce the dimensionalality of the data. We can figure out how much
+   variance each PC accounts for. The total variance between the old
+   and new basis will always be the same. This is because the distance
+   from the origin for the points will always be the same for both the
+   new and old basis.
+
+** 15: PCA Coding Exercise
+
+   [[file:udacity-part1/pca_basics_solution.html][PCA Coding Exercise]]
+
+** 16: PCA as a Factor Model
+
+   Remember that our factor return model is:
+
+   $$\mathbf{r} = \mathbf{Bf} + \mathbf{s}$$
+
+   With our model of factor returns, we need to input the PCA outputs
+   into the model.
+
+   #+caption: Factor Returns
+   [[file:img/facret.png]]
+
+   These are the outputs from our PCA analysis:
+   #+caption: PCA
+   [[file:img/pc.png]]
+
+   If we drop some of the components, we can add the residuals as $\mathbf{s}$:
+
+   #+caption: PCA and factor model
+   [[file:img/res.png]]
+
+** 17: PCA as a Factor Model Part 2
+
+   In order get $\mathbf{f}$, we can take the transpose of the
+   exposures multiplied by the original returns:
+
+   $$\mathbf{f}=\mathbf{B}^T\mathbf{r}$$
+
+   #+caption: Factor Returns
+   [[file:img/fff.png]]
+
+
+   In order to get the factor covariance matrix, we can do the same as
+   before:
+
+   $$\mathbf{F} = \frac{1}{T-1}\mathbf{ff}^T$$
+
+   Note that $\mathbf{F}$ is a diagonal matrix since the principle
+   coordinates are by construction orthogonal to each other.
+
+   We can then find the idiosyncratic return by taking the difference
+   between the actual return and the common return:
+
+   $$\mathbf{s} = \mathbf{r} - \mathbf{Bf}$$
+
+   #+caption: Specific Returns
+   [[file:img/s.png]]
+
+   
+   We then can find the $\mathbf{S}$, the specific covariance matrix
+   in the same way as $\mathbf{F}$:
+
+   $$\mathbf{S}= \frac{1}{T-1}\mathbf{ss}^T$$
+
+   Note that $\mathbf{S}$ is a diagonal matrix, as by definition the
+   specific variance is variance that can not be attributed to any
+   other source.
+
+** 18: PCA as a Factor Model Coding Exercise
+
+   [[file:udacity-part1/pca_factor_model_solution.html][PCA Factor Model Exercise]]
+
+* Lesson 26: Alpha Factors
+** 1: Intro: Efficient Market Hypothesis and Arbitrage Opportunities
+   
+   The search for alpha factors is the search for deviations from the
+   Efficient Market Hypothesis (EMH). This involves both mispricing
+   and arbitrage.
+
+   Processing techniques for alpha factors:
+   1. Sector neutralizing
+   2. Ranking
+   3. Z-scoring
+   4. Smoothing
+   5. Conditioning
+
+   Evaluation techniques:
+   1. Sharpe ratio
+   2. Information coefficient
+   3. Information ratio
+   4. Turnover analysis
+
+** 3: Alpha Factors vs Risk Factors
+   
+   Our goal is to use risk models to neutralize risk factors in order
+   to minimize volatility. If we don't neutralize these risk factors,
+   the noise will drown out the signal, the alpha factors.
+
+** 4: Definition of Key Words
+
+   Alpha model is an algorithm that transforms data numbers associated
+   with each stock.
+   
+   Alpha value refers to a single value for a single stock, for a
+   single time period.
+
+   Alpha vector has a number for each stock, and the number is
+   proportional to the amount of money we wish to allocate for each
+   stock.
+   
+   Alpha factor: a time series of alpha vectors (over multiple time
+   periods).
+
+   Raw alpha factor: a version of an alpha factor before additional
+   processing.
+
+   Stock universe: set of stocks under consideration for the
+   portfolio.
+   
+** 5: Researching Alphas from Academic Papers
+   
+   We should not expect to get strong production-ready alphas "as is"
+   from academic papers. Publication orodes performance of the alpha
+   model over time.
+
+   Reasons to study academic papers:
+   1. Idea generation
+   2. Baseline for comparison
+   3. New methods 
+   4. New data
+
+** 6: Controlling for Risk within a Alpha Factor Part 1
+
+   We want our portfolios to be neutral to common risk factors. 
+
+   Portfolio optimization neutralizes exposure to common risk factors.
+
+   Better to neutralize major common risks within alpha factors too.
+
+   Market risk
+      - We control this by being market neutral. We make the
+        assumption that all stocks have a beta to the market of 1. We
+        subtract the mean from each alpha value in the vector so that
+        the sum of all values equals 0.
+ 
+** 7: Controlling for Risk within a Alpha Factor Part 2
+
+   Sector risk
+      - We demean from each alpha value in the vector so that the sum
+        of all values is equal to 0, just like with the market.
+
+   We want to neutralize by market and then by sector.
+
+** 8: Sector Neutral Exercise
+
+   [[file:udacity-part1/sector_neutral_solution.html][Sector Neutral Exercise]]
+
+** 9: Ranking Part 1
+
+   Often times we want to winsorize by replacing numbers greater or
+   lower than a certain percentile
+
+   #+caption: Before Winsorizing
+   [[file:img/win.png]]
+
+   #+caption: After Winsorizing
+   [[file:img/win2.png]]
+
+   We could also deal with outliers by setting a maximum weight for a
+   single stock.
+
+** 10: Ranking Part 2
+
+   #+caption: Ranking example
+   [[file:img/rank.png]]
+
+** 12: Ranking Exercise
+
+   [[file:udacity-part1/rank_solution.html][Ranking Exercise]]
+
+** 13: Z-score
+
+   $$z_i = \frac{x_i-\mu}{\sigma}$$
+
+   #+caption: Z-score
+   [[file:img/zscore.png]]
+
+
+   Ranking
+   1. Makes out alpha vectors more robust against outliers and noise
+   2. Best to use when all alpha vectors are generated from the same
+      universe
+
+   Z-scoring:
+   1. Not robust against outliers and noise
+   2. Useful to apply ranking and then z-scoring when alpha vectors
+      are generated from different stock universes
+
+** 15: Z-Score Exercise
+
+   [[file:udacity-part1/zscore_solution.html][Z-Score Exercise]]
+
+** 16: Smoothing
+
+   #+caption: Smoothing
+   [[file:img/smooth.png]]
+
+   Smoothing can both increase the Sharpe Ratio and decrease Turnover.
+
+** 18: Smoothing Exercise
+
+   [[file:udacity-part1/smoothing_solution.html][Smoothing Exercise]]
+
+** 19: Factor Returns
+
+   Evaluation metrics for alpha factors:
+   1. Factor returns
+   2. Sharpe ratio
+   3. Information coefficient
+   4. Information ratio
+   5. Quantile analysis
+   6. Turnover analysis
+
+   The alpha factor return measures the returns of your portfolio that
+   is due to the alpha vector. This is the return of our portfolio if
+   our weight were purely determined by the alpha factor.
+
+   #+caption: Alpha Factor Return
+   [[file:img/alphavec.png]]
+
+** 23: Universe Construction Rule
+
+   When we say "universe" we really mean universe construction
+   rule. If we chose a static list of stocks, we would have look-ahead
+   bias. One type of look-ahead bias is survivorship bias.
+
+** 24: Return Denominator, Leverage, and Factor Returns
+
+   Return denominator:
+   $$R_D = \sum_{i=1}^{T}|\alpha_i|$$
+
+   Leverage ratio:
+   $$L_R = \frac{\text{positions}}{\text{capital}}$$
+
+   In the research stage we assume:
+   $$L_R = \frac{\$1}{\$1} =1$$
+   
+   An institution might apply a leverage ratio between 2 and 6.
+
+** 27: Sharpe Ratio
+
+   Sharpe ratio:
+   $$S_{\text{daily}} = \frac{\mu_f}{\sigma_f}$$
+
+   $$S_{\text{annualized}} = \sqrt{252} \times S_{\text{daily}}$$
+   
+** 28: Sharpe Ratio Coding Exercise
+
+   [[file:udacity-part1/sharpe_ratio_solution.html][Sharpe Ratio Coding Exercise]]
+
+
+** 30: Ranked Information Coefficient (Rank IC) Part 1
+
+   The Rank IC tells us if the magnitude of our alpha factor is
+   correlated between the magnitude of asset forward returns.
+
+   #+caption: Rank IC Example
+   [[file:img/rankic.png]]
+
+** 31: Ranked Information Coefficient (Rank IC) Part 1
+
+   More formally, here is how we calculate Rank IC:
+   1. Take the ranks of the alpha vectors
+   2. Calculate the ranks of the forward returns
+   3. Take the Spearman correlation 
+
+** 33: Rank IC Coding Exercise
+
+   [[file:udacity-part1/rank_ic_solution.html][Rank IC Coding Exercise]]
+
+
+** 34: the Fundamental Law of Active Management Part 1
+
+   Information Ratio:
+   $$ IR = \sqrt{252} \times \frac{\mu_s}{\sigma_s}$$
+
+   Where $s$ is the specific return.
+
+   When you have a market neutral portfolio, all specific return is
+   your alpha return.
+
+   Fundamental Law of Active Management:
+   $$ IR = IC \sqrt{B}$$
+
+   The Breadth is the number of independent trading opportunities
+   annualized.
+
+   In order to maximize the number of indpendent bets, we need to
+   remove exposure to risk factors.
+
+   Two ways to improve performance (information ratio):
+   1. Improve alpha factor (IC)
+   2. Increase number of trades (breadth)
+
+** 34: the Fundamental Law of Active Management Part 2
+   
+   Now we see that it we want to increase IR, we need to increase
+   either or both of IC and B. But what are these two mysterious
+   terms? IC is skill and B is breadth. IC is the information
+   coefficient as we learned above. It makes perfect sense that if you
+   have better skill at making predictions, then you will have a
+   better strategy and higher Sharpe Ratio right?
+
+   When first coming to quant finance, people typically stop
+   there. They spend all their time trying to increase the quality of
+   a narrow set of forecasts. Of course this is important, but I’ll
+   let you in on something well known in the industry, but not so when
+   known outside: the IC for even the best quants in the world is
+   relatively not very high. In fact, you might be surprised to learn
+   that the count of profitable trades as a ratio to all trades (a
+   measure similar in spirit to IC) by the best, well-known quants is
+   typically just a bit higher than 50%. And if that’s surprising,
+   I’ll tell you something else which might shock you: in general,
+   great discretionary investors have the advantage over great quants
+   when it comes to IC. Quants however, have an advantage when it
+   comes to breadth.
+
+** 36: Real World Constraints: Liquidity   
+
+   Liquidity is a big constraint for real world trading.
+
+   We can use the bid-ask spread as a proxy for liquidity. The bid-ask
+   spread for liquid stocks is usually around 3-5 basis points. The
+   bid-ask spread for less liquid stocks is 20-30 basis points.
+
+** 37: Real World Constraints: Transaction Costs
+
+   Transaction costs come from two sources:
+   1. Commission for trading
+   2. Market impact
+      
+   #+caption: Reducing Market Impact
+   [[file:img/block.png]]
+
+** 38: Turnover as a Proxy for Real World Constraints
+
+   Since market impact and trading costs change over time, we can use
+   turnover as a proxy for these transaction costs.
+
+   In production we can calculate turnover as:
+   $$\text{Turnover} = \frac{\text{Value of Trades}}{\text{Portfolio Value}}$$
+
+   In the research stage we just define turnover as the change in
+   portfolio weights:
+   $$|x_t - x_{t + 1}||$$
+
+** 39: Factor Rank Autocorrelation
+
+   Another way to calculate turnover is to use factor rank
+   autocorrelation. The autocorrelation is close to 1 when the rank of
+   the weights of stocks in your portfolio doesn't change much over
+   two time periods.
+
+   A high FRA indicates lower turnover while a low or negative FRA
+   indicates higher turnover.
+
+** 40: Turnover Exercise
+
+   [[file:udacity-part1/turnover_solution.html][Turnover Exercise]]
+
+
+** 41: Quantile Analysis Part 1
+
+   Since we are often working with hundreds or thousands of stocks, a
+   good way to visualize the Rank IC is with quantile analysis.
+
+   #+caption: Quantile Analysis
+   [[file:img/quant.png]]
+
+   #+caption: Quantile Performance
+   [[file:img/q.png]]
+
+** 42: Quantile Analysis Part 2
+
+   Ideally, the returns of the quantiles in order from the lowest
+   quantile to the highest quantile would be monotonically increasing.
+
+** 44: Quantile Analysis Exercise
+
+   [[file:udacity-part1/quantiles_solution.html][Quantile Analysis Exercise]]
+
+
+** 45: Quantiles: Academic Research vs. Practitioners
+
+   The goal of academic research is to detect a broadly applicable
+   market phenomenon. This often means they only care about some
+   quantiles. Practitioners on the other hand are interested in
+   scoring each stock and thus will pay attention to every quantile.
+
+** 46: Transfer Coefficient
+
+   We often want to control for risk before the portfolio optimization
+   phase. Moreover, controlling for risk within the alpha vector
+   prevents significant changes in the weights after optimization. If
+   the optimization function significantly changed the weights of the
+   alpha factor, we would no longer expect the signal from the alpha
+   vector to transfer to the final portfolio.
+
+   We can calculate the transfer coefficient, which measures the
+   changes in the portfolio before and after optimization, by
+   calculating the correlation between the weights before and after
+   optimization.
+   
+** 47: Transfer Coefficient Coding Exercise
+
+   [[file:udacity-part1/transfer_coefficient_solution.html][Transfer Coefficient Coding Exercise]]
+   
+
+** 49: Conditional Factors
+
+   Often times we want to create a factor that is conditioned on
+   another factor. We can do this by multiplying two factors together.
+
+   If we wanted to look at the effects of two factors together we
+   could use a quantile of quantiles approach:
+
+   #+caption: Quantiles of Quantiles
+   [[file:img/qq.png]]
+
+** 50: Summary
+
+   We should use out of sample testing or backtesting to avoid
+   overfitting. Overfitting on past data will prevent alpha factors
+   from generalizing to different market conditions.
+
+* Lesson 27: Alpha Factor Research Methods
+** 1: Case Studies Intro
+
+   In this lesson we'll cover some academic papers and attempt to
+   implement alpha factors for them:
+   1. [[https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2554010][Overnight Returns and Firm-Specific Investor Sentiment]]
+   2. [[https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2610571][The Formation Process of Winners and Losers in Momentum Investing]]
+   3. [[https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2600014][Expected Skewness and Momentum]]
+   4. [[https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2155491][Arbitrage Asymmetry and the Idiosyncratic Volatility Puzzle]]
+
+** 3: Overnight Returns Abstract
+
+   Overnight Returns and Firm-Specific Investor Sentiment by David
+   Aboody et al.
+
+   We examine the suitability of using overnight returns to measure
+   firm-specific investor sentiment by analyzing whether they possess
+   characteristics expected of a sentiment measure. We document
+   short-term overnight return persistence, consistent with existing
+   evidence of short- term persistence in share demand of
+   sentiment-influenced investors. We find that short-term persistence
+   is stronger for harder-to-value firms, consistent with existing
+   evidence that sentiment plays a larger role for such firms. We show
+   that stocks with high (low) overnight returns underperform
+   (outperform) over the longer-term, consistent with prior evidence
+   of temporary sentiment-driven mispricing. Overall, our evidence
+   supports using overnight returns to measure firm-specific
+   sentiment.  Notes
+
+   p 2, I: The recent work of Berkman, Koch, Tuttle, and Zhang (2012)
+   suggests that a stock’s overnight (close-to-open) return can serve
+   as a measure of firm-level sentiment.
+   
+   p 3, I: Specifically, Berkman et al. (2012) find that
+   attention-generating events (high absolute returns or strong net
+   buying by retail investors) on one day lead to higher demand by
+   individual investors, concentrated near the open of the next
+   trading day...This creates temporary price pressure at the open,
+   resulting in elevated overnight returns that are reversed during
+   the trading day.
+
+   p 3, I: We conduct three sets of analyses. In the first we test for
+   short-run persistence in overnight returns. The basis for expecting
+   this from a measure of sentiment is the evidence in Barber et
+   al. (2009) that the order imbalances of retail investors, who are
+   the investors most likely to exhibit sentiment, persist for periods
+   extending over several weeks...In the third analysis we examine
+   whether stocks with high overnight returns underperform those with
+   low overnight returns over the long term.
+
+** 4: Overnight Returns Possible Alpha Factors
+
+   The overnight returns are the Close-to-Open returns. According to
+   the paper's hypothesis, many investors have day jobs and place
+   market orders after the market has closed. We then conclude that
+   the stock is overbought allowing us to short it. This however will
+   not be our alpha factor.
+
+   Also the paper notes that they found a short-term momentum effect
+   for overnight returns.
+
+** 5: Overnight Returns Data, Universe, Methods
+
+   The papers says that the mean reversion and momentum effects are
+   more pronounced for harder to value firms. The hypothesis is that
+   with harder to value firms, investors rely more on sentiment than
+   fundamentals.
+
+** 6: Overnight Returns: Methods: Quantile Analysis
+
+   In order to check the persistence of weekly close-to-open returns,
+   we can sort the 5-day average of close-to-open returns into
+   deciles. Decile 1 has the lowest returns while decile 10 has the
+   highest returns. The returns persist up to 4 weeks into the future.
+
+   Potential alpha factors:
+   1. Calculate overnight returns
+   2. Aggregate weekly overnight returns
+   3. Overweight stocks with high weekly overnight returns and
+      underweight stocks with low weekly overnight returns
+
+** 7: Overnight Returns Exercise
+
+   [[file:udacity-part1/overnight_returns_solution.html][Overnight Returns Exercise]]
+
+** 8: Winners and Losers in Momentum Investing
+
+   Does it matter how two stocks reach a specific return level?
+
+   The Formation Process of Winners and Losers in Momentum Investing
+
+   Previous studies have focused on which stocks are winners or losers
+   but have paid little attention to the formation process of past
+   returns. This paper develops a model showing that past returns and
+   the formation process of past returns have a joint effect on future
+   expected returns. The empirical evidence shows that the
+   zero-investment portfolio, including stocks with specific patterns
+   of historical prices, improves monthly momentum profit by
+   59%. Overall, the process of how one stock becomes a winner or
+   loser can further distinguish the best and worst stocks in a group
+   of winners or losers.
+
+   Notes
+
+   p. 3: Intermediate-term (3–12 months) momentum has been documented
+   by Jegadeesh and Titman (1993, 2001, hereafter JT), while
+   short-term (weekly) and long-term (3–5 years) reversals have been
+   documented by Lehmann (1990) and Jegadeesh (1990) and by DeBondt
+   and Thaler (1985), respectively. Various models and theories have
+   been proposed to explain the coexistence of intermediate-term
+   momentum and long-term reversal. However, most studies have focused
+   primarily on which stocks are winners or losers; they have paid
+   little attention to how those stocks become winners or losers. This
+   paper develops a model to analyze whether the movement of
+   historical prices is related to future expected returns.
+
+   p. 4: This paper captures the idea that past returns and the
+   formation process of past returns have a joint effect on future
+   expected returns. We argue that how one stock becomes a winner or
+   loser—that is, the movement of historical prices—plays an important
+   role in momentum investing. Using a polynomial quadratic model to
+   approximate the nonlinear pattern of historical prices, the model
+   shows that as long as two stocks share the same return over the
+   past n-month, the future expected return of the stock whose
+   historical prices are convex shaped is not lower than one whose
+   historical prices are concave shaped. In other words, when there
+   are two winner (or loser) stocks, the one with convex-shaped
+   historical prices will possess higher future expected returns than
+   the one with concave-shaped historical prices.
+
+   p. 4: To test the model empirically, we regress previous daily
+   prices in the ranking period on an ordinal time variable and the
+   square of the ordinal time variable for each stock. The coefficient
+   of the square of the ordinal time variable is denoted as gamma.
+
+** 9: Winners and Losers: Accelerated and Decelerated Gains and Losses
+
+   #+caption: Trajectory
+   [[file:img/tr.png]]
+
+   We can also view concavity or convexity on a relative basis:
+
+   #+caption: Relative Concavity or Convexity
+   [[file:img/tr2.png]]
+
+** 10: Winners and Losers: Approximating Curves with Polynomials
+
+   #+caption: Positive Gain Quadratic
+   [[file:img/pg.png]]
+
+   #+caption: Negative Gain Quadratic
+   [[file:img/ng.png]]
+
+** 12: Winners and Losers: Creating a Joint Factor
+
+   Using:
+   $$ y = Gain \times t + Acc \times t^2$$
+
+   When both Gain and Acc are positive, we would want to long. If both
+   are negative we would want to short.
+
+   We use a multiple regression to find $Gain$ and $Acc$ and then we
+   convert them into ranks and multiply to get our final conditional
+   alpha factor:
+
+   $$Factor = Gain_{\text{rank}} \times Acc_{\text{rank}} $$
+
+** 13: Winners and Losers in Momentum Exercise
+
+  [[file:udacity-part1/regression_against_time_solution.html][Winners and Losers in Momentum Exercise]]
+
+** 14: Skewness and Momentum: Attentional Bias 
+
+   Expected Skewness and Momentum
+
+   Motivated by the time-series insights of Daniel and Moskowitz
+   (2016), we investigate the link between expected skewness and
+   momentum in the cross-section. The alpha of skewness-enhanced
+   (-weakened) momentum is about twice (half) as large as the
+   traditional alpha. These findings are driven by the short
+   leg. Portfolio sorts, Fama-MacBeth regressions, and the market
+   reaction to earnings announcements suggest that expected skewness
+   is an important determinant of momentum. Due to the simplicity of
+   the approach, its economic magnitude, its existence among large
+   stocks, and the success of risk management, the results are
+   difficult to reconcile with the efficient market hypothesis.
+
+   Notes
+
+   p1: In this paper, we comprehensively explore a new dimension in
+   firm-level momentum profitability. More precisely, we document a
+   strong relation between expected idiosyncratic skewness and
+   cross-sectional momentum profits, in particular with respect to
+   past loser stocks. The impact of skewness is economically large,
+   statistically highly significant, holds among large firms, in
+   international markets, and after controlling for a large set of
+   firm characteristics previously linked to momentum profitability
+   (e.g., past returns, idiosyncratic volatility, continuously
+   arriving information, credit ratings).
+
+   p2: Based on this thought, momentum should be particularly
+   pronounced if losers (winners) have a strong (weak) positive
+   skew. Conversely, high (low) positive skewness on the winner
+   (loser) leg is expected to reduce the profitability of momentum.
+   
+   p3: As a proxy for expected skewness, our baseline analysis relies
+   on the measure proposed by Bali et al. (2011) because of its
+   simplicity, its economic persuasiveness, and its ability to predict
+   realized skewness. It is calculated as the maximum daily return
+   during the preceding month.
+
+** 15: Skewness and Momentum: Defining Skew
+
+   Skewness refers to the difference between the median and mean. A
+   negative skew means the mean is to left of the median, while a
+   positive skew means that the mean is to the right as the median. It
+   is the third moment. Stock returns often features excess kurtosis
+   (fourth moment) compared to a normal distribution.
+   
+   #+caption: Skewness
+   [[file:img/ske.png]]
+
+   A good proxy for skewness is the maximum daily return over the past
+   20 trading days. It is reasonable to think that a recent high would
+   be a good indicator that a retail investor would use to buy or sell
+   the stock.
+
+** 16: Skewness and Momentum: Momentum Enhanced or Weakened by Skew
+
+   For this alpha factor, we will use the maximum daily return of a
+   stock over a month. Note that this definition just takes into
+   account positive skew. Since alpha is a relative ranking exercise,
+   this is good enough.
+
+   There are four scenarios discussed in the paper:
+   1. Momentum (positive) and skew (positive): "weakened momentum"
+   2. Momentum (positive) and skew (less positive): "enhanced momentum"
+   3. Momentum (negative) and skew (positive): "enhanced momentum"
+   4. Momentum (negative) and skew (less positive): "weakened momentum"
+
+** 17: Skewness and Momentum: Conditional Factor
+
+   We can formulate the conditional alpha factor as:
+   $$ Factor = Momentum_r \times Skew_r$$
+
+   Where momentum is ranked from highest to lowest, while we use the
+   reverse ranked order for skew.
+
+** 18: iVol: value and Idiosyncratic Volatility Overview
+
+   Arbitrage Asymmetry and the Idiosyncratic Volatility Puzzle
+
+   Abstract
+
+   Many investors purchase stock but are reluctant or unable to sell
+   short. Combining this arbitrage asymmetry with the arbitrage risk
+   represented by idiosyncratic volatility (IVOL) explains the
+   negative relation between IVOL and average return. The IVOL-return
+   relation is negative among overpriced stocks but positive among
+   underpriced stocks, with mispricing determined by combining 11
+   return anomalies. Consistent with arbitrage asymmetry, the negative
+   relation among overpriced stocks is stronger, especially for stocks
+   less easily shorted, so the overall IVOL-return relation is
+   negative. Further supporting our explanation, high investor
+   sentiment weakens the positive relation among underpriced stocks
+   and, especially, strengthens the negative relation among overpriced
+   stocks.
+
+   Notes
+
+   Here we use the famous value factor which is described in many
+   place (e.g., [[http://pages.stern.nyu.edu/~lpederse/papers/ValMomEverywhere.pdf][Value and Momentum Everywhere]]): p. 8 "For individual
+   stocks, we use the common value signal of the ratio of the book
+   value of equity to market value of equity, or book-to-market
+   ratio,"; in this study we use the Sharadar ratio Price/Book. We use
+   this as an anomaly to create a refined factor as described in the
+   "Arbitrage Asymmetry and the Idiosyncratic Volatility Puzzle". p. 2
+   This study presents an explanation for the observed negative
+   relation be- tween IVOL and expected return. We start with the
+   principle that [idiosyncratic volatility] IVOL rep- resents risk
+   that deters arbitrage and the resulting reduction of mispricing. In
+   keeping with previous literature, we refer to risk that deters
+   arbitrage as arbi- trage risk.3 We then combine this familiar
+   concept with what we term arbitrage asymmetry: many investors who
+   would buy a stock they see as underpriced are reluctant or unable
+   to short a stock they see as overpriced.
+
+   p. 2 Combining the effects of arbitrage risk and arbitrage
+   asymmetry implies the observed negative relation between IVOL and
+   expected return. To see this, first note that stocks with greater
+   IVOL, and thus greater arbitrage risk, should be more susceptible
+   to mispricing that is not eliminated by arbitrageurs [my emphasis
+   added]. Among overpriced stocks, the IVOL effect in expected return
+   should therefore be negative—those with the highest IVOL should be
+   the most overpriced.
+
+   p. 11 We compute individual stock IVOL, following Ang et
+   al. (2006), as the stan- dard deviation of the most recent month’s
+   daily benchmark-adjusted returns.
+
+** 20: iVol: Arbitrage Risk
+
+   The essence of this paper is that given two assets with the same
+   return but different volatility, one would likely consider the one
+   with the lower volatility as more attractive. But it is likely that
+   the mispricing of this stock has already been arbitraged away, so
+   we might want to take the stock with the higher volatility
+   instead. Essentially, we might be expected to make excess return
+   because of the arbitrage risk premium.
+
+** 21: iVol: Idiosyncratic Volatility
+
+   Idiosyncratic risk can be used a measure of arbitrage risk due to
+   the fact that sophisticated market participants will aim to
+   neutralize common factor risks leaving only exposure to the
+   idiosyncratic risk.
+
+
+* Lesson 28: Advanced Portfolio Optimization
+** 2: Setting up The Problem: Alphas
+
+   We either might be creating a portfolio from scratch or there might
+   already be an existing portfolio. We want to maximize return and
+   minimize variance, among other things.
+
+   Our alpha model is the objective, our risk model the constraint.
+
+   Our objective is to minimize:
+   $$-\mathbf{\alpha}^T \mathbf{x}$$
+
+** 3: Setting Up the Problem: Risk
+
+   Our constraint is:
+   $$\mathbf{x}^T(\mathbf{B}^T\mathbf{FB}+\mathbf{s})\mathbf{x} < c$$
+   
+   Where $c$ is the maximum allowed variance.
+
+** 3: Regularization
+
+   In order to prevent overweighting single stocks, we want to apply a
+   regularization term by adding the L2-norm to the minimization equation:
+
+   $$-\mathbf{\alpha}^T\mathbf{x} + \lambda||\mathbf{x}||_2$$
+   
+   We use $\lambda$ as parameter to trade off maximizing alpha and
+   minimizing overweighting.
+   
+** 5: Standard Constraints
+
+   If we are long only:
+   $$\mathbf{x} \succeq 0$$
+
+   Market neutral:
+   $$\sum_{i} x_i = 0$$
+
+   Even though we already constructed our alpha factor in order to be
+   market neutral, we use this constraint so the optimization function
+   will not inadvertently make our portfolio not market
+   neutral. Alternatively, we could specify that:
+
+   $$-\epsilon < \sum_{i}x_i < \epsilon$$
+   
+   In order to give our optimization function more flexibility.
+
+** 6: Leverage Constraint
+
+   $$ \sum_{i}|x_i| \leq 1$$
+
+   We do this so our portfolio weights don't grow to infinity.
+
+** 7: Factor Exposure and Position Constraints
+   
+   Factor max and min exposure constraints:
+   $$\mathbf{B}^T\mathbf{x}\preceq k_\text{max}$$
+
+   $$\mathbf{B}^T\mathbf{x}\succeq k_\text{min}$$
+
+   Position max and min constraints:
+   $$\mathbf{x}\preceq u_\text{max}$$
+
+   $$\mathbf{x}\succeq u_\text{min}$$   
+
+** 8: Advanced Optimization Exercise
+
+   [[file:udacity-part1/Advanced_Opt_solution.html][Advanced Optimization Exercise]]
+
+
+** 9: Alternative Ways of Setting Up the Problem
+
+   If this doesn't work:
+   $$-\mathbf{\alpha}^T\mathbf{x} + \lambda||\mathbf{x}||_2$$
+
+   We could instead try to minimize:
+   $$||\mathbf{x}-\mathbf{x^*}||$$
+
+   Where $\mathbf{x^*}$ is the idea portfolio. We could calculate $\mathbf{x^*}$ as:
+   
+   $$\mathbf{x^*} = \frac{\alpha - {\hat \alpha}}{\sum_{i}|a_i|}$$
+
+   The goal here would be to get the weights as close as possible to
+   the set of target weights while respecting a set of
+   constraints. How do we generate these target weights? As an
+   example, these target weights might be values thought to be
+   proportional to future returns for each asset, in other words, an
+   alpha vector.
+
+   All of these formulations seek to optimize an objective function
+   that is based on the alpha model, constrained (in part) by a
+   constraint on risk as defined by the risk model. However, you might
+   also structure the problem differently.
+
+   One option is to maximize predicted return and minimize risk by
+   including terms representing each quantity in the objective
+   function, with the tradeoff between goals governed by a
+   parameter. We then could minimize:
+
+   $$-\mathbf{\alpha}^T\mathbf{x}+\lambda[\mathbf{x}^T(\mathbf{B}^T\mathbf{FB}+\mathbf{S})\mathbf{x}]$$
+
+   In this case, you avoid the question of what limit to place on
+   risk. However, this is not necessarily better as you need to
+   specify a lambda which makes sense. However this is a significant
+   benefit in this kind of penalty formulation: you avoid the problem
+   of an infeasible optimization due to possibly conflicting
+   constraints.
+
+   Another possibility is to include the alpha and risk models in the
+   minimization as follows:
+
+   $$(\mathbf{x}-\mathbf{x^*})^T(\mathbf{B}^T\mathbf{FB}+\mathbf{S})(\mathbf{x}-\mathbf{x^*})$$
+
+   This objective is similar to the objective where we minimize the
+   distance of the portfolio weights from the target portfolio
+   weights, $||\mathbf{x}-\mathbf{x^*}||$, except that in this case,
+   the objective is to minimize not only the distance between the
+   portfolio weights and the target portfolio weights, but the risk
+   introduced by this distance. In this case, we find the weights such
+   that the difference between the risk of the ideal portfolio and the
+   achievable portfolio is minimized—the whole term is basically the
+   tracking error. This objective function is convex; if the weights
+   match the weights on the target portfolio, the value of the
+   function is 0. The idea is the same as those of the objectives
+   above, but this objective is more theoretically elegant. In fact
+   this term does not need to be in the objective, it could also be
+   implemented as constraint.
+
+** 10: Estimation Error
+
+   Given $n$ factors, we will have:
+
+   $$ \frac{n(n+1)}{n}$$
+
+   unique quantities to calculate. our number of time periods $t$,
+   should be at least be: $t > n$. Ideally, $t \gg n$. Otherwise, our
+   risk model will not be accurate and PCA will not be able to
+   meaningfully generate PCs.
+
+   For example, if we have 3000 securities, then we will at least need
+   over 12 years of daily data.
+
+** 11: Infeasible Problems
+
+   When working in a high dimensional space, it is often difficult to
+   see that a objective with some constraints is infeasible. 
+
+   Equality constraints on an optimization can make your problem
+   infeasible very easily.
+
+   Sometimes constraints can make the problem unfeasible. To solve
+   this, we could move the constraints into the optimization function
+   mediated by some penalty parameter.
+
+** 12: Transaction Costs 
+
+   We could add a constraint that limits turnover in the portfolio:
+
+   $$ \sum_{i} |x_{i,t}-x_{i,t-1}|<0.2$$
+   
+   The problem with this is that it could easily make the problem
+   infeasible. 
+
+   There are two solutions to this problem:
+   1. Add a turnover penalty term to your equation
+   2. Run your objective function in a loop and slowly relax your
+      turnover constraint until the problem is feasible
+  
+** 14: Path Dependency
+   
+   Two exact same strategies executed at different times often will
+   not end up with the same portfolio at the end of some period,
+   though it depends on the constraints and optimization function.
+
+** 15: What is Optimization Doing to Our Alphas
+  
+   We want to minimize the difference between our raw alpha vector and
+   the vector produced after optimization, otherwise we might lose our
+   alpha in the process. This is why we try and neutralize risk in our
+   raw alpha vector instead of waiting until the optimization
+   stage. We always want to control risk as soon as possible in our
+   process.
+
+* Lesson 29: Project 4: Multi-Factor Model
+
+  [[file:udacity-part1/project_4_starter.html][Multi-Factor Model]]
+
+  
